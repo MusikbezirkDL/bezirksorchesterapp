@@ -3,9 +3,13 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Musikbezirk Deutschlandsberg - Projekttage</title>
+  <title>Bezirksorchester Deutschlandsberg</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Caveat:wght@600;700&display=swap');
+    .font-handwritten { font-family: 'Caveat', cursive; }
+  </style>
 </head>
 <body class="bg-gray-100 text-gray-800 font-sans min-h-screen flex flex-col">
 
@@ -13,8 +17,8 @@
   <header class="bg-[#00382B] text-white shadow-lg">
     <div class="max-w-5xl mx-auto px-4 py-4 flex flex-col sm:flex-row justify-between items-center gap-4">
       <div class="cursor-pointer text-center sm:text-left" onclick="showSection('home')">
-        <h1 class="text-xl font-bold tracking-wide">Musikbezirk Deutschlandsberg</h1>
-        <p class="text-xs text-[#C59B27] uppercase tracking-wider font-semibold">Bezirks-Jugendorchester & Projekttage</p>
+        <h1 class="text-xl font-bold tracking-wider uppercase">Bezirksorchester</h1>
+        <p class="text-xs text-[#C59B27] uppercase tracking-widest font-semibold">Deutschlandsberg</p>
       </div>
       <nav class="flex gap-2 sm:gap-4 text-sm font-medium">
         <button onclick="showSection('home')" class="hover:text-[#C59B27] px-3 py-1 rounded transition">Startseite</button>
@@ -31,31 +35,62 @@
     <!-- Section: Startseite -->
     <section id="section-home" class="space-y-6">
       <div class="bg-white p-6 sm:p-8 rounded-lg shadow-md border-t-4 border-[#00382B]">
-        <h2 class="text-2xl font-bold text-[#00382B] mb-4">Willkommen bei den Bezirks-Projekttagen!</h2>
-        <p class="mb-4 text-gray-700 leading-relaxed">
-          Gemeinsam musizieren, neue Freundschaften schließen und ein mitreißendes Konzert auf die Beine stellen:
-          Der Musikbezirk Deutschlandsberg lädt alle jungen und junggebliebenen Musikerinnen und Musiker herzlich ein!
-        </p>
-        <div class="bg-emerald-50 border-l-4 border-[#00382B] p-4 my-4 rounded">
-          <h3 class="font-bold text-[#00382B]">Jetzt anmelden!</h3>
-          <p class="text-sm text-gray-700">Die Anmeldung für das kommende Projekt ist ab sofort geöffnet.</p>
+        
+        <div class="text-center mb-6">
+          <p class="font-handwritten text-3xl text-[#00382B] -rotate-2">Gemeinsam mehr bewegen!</p>
+          <h2 class="text-3xl font-extrabold text-[#00382B] tracking-wide mt-1">BEZIRKSORCHESTER</h2>
+          <p class="text-lg font-bold text-[#C59B27] tracking-widest uppercase">Deutschlandsberg</p>
+          <p class="text-sm font-bold text-gray-600 uppercase tracking-wider mt-1">Benefizkonzert</p>
         </div>
-        <div class="flex flex-wrap gap-4 mt-6">
-          <button onclick="showSection('anmeldung')" class="bg-[#00382B] hover:bg-emerald-900 text-white font-bold px-6 py-2.5 rounded shadow transition">
-            Zur Anmeldung
+
+        <div class="bg-[#00382B] text-white p-6 rounded-lg text-center shadow-inner my-6">
+          <p class="text-xs uppercase tracking-widest text-[#C59B27] font-semibold">Save the Date!</p>
+          <p class="text-2xl font-bold mt-1">Freitag, 12. Februar 2027</p>
+          <p class="text-md text-gray-200">Koralmhalle Deutschlandsberg</p>
+        </div>
+
+        <div class="bg-emerald-50 border-l-4 border-[#00382B] p-4 my-4 rounded">
+          <p class="font-handwritten text-2xl text-[#00382B] mb-1">Herzlich willkommen sind alle,</p>
+          <p class="text-sm text-gray-700 font-medium">die Spaß am gemeinsamen Musizieren haben!</p>
+        </div>
+
+        <!-- Dreier-Icon-Zeile laut Plakat -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 text-center my-8 pt-4 border-t border-gray-100">
+          <div class="p-3">
+            <div class="text-2xl mb-1">🎼</div>
+            <p class="text-xs font-bold uppercase tracking-wider text-gray-700">Gemeinsam Musizieren</p>
+          </div>
+          <div class="p-3">
+            <div class="text-2xl mb-1">❤️</div>
+            <p class="text-xs font-bold uppercase tracking-wider text-gray-700">Gutes tun für unsere Region</p>
+          </div>
+          <div class="p-3">
+            <div class="text-2xl mb-1">🎵</div>
+            <p class="text-xs font-bold uppercase tracking-wider text-gray-700">Kultur verbindet</p>
+          </div>
+        </div>
+
+        <div class="flex flex-wrap justify-center gap-4 mt-6">
+          <button onclick="showSection('anmeldung')" class="bg-[#00382B] hover:bg-emerald-900 text-white font-bold px-8 py-3 rounded-lg shadow transition">
+            Jetzt Anmelden
           </button>
-          <button onclick="showSection('termine')" class="bg-gray-200 hover:bg-gray-300 text-gray-800 font-semibold px-6 py-2.5 rounded transition">
+          <button onclick="showSection('termine')" class="bg-gray-200 hover:bg-gray-300 text-gray-800 font-semibold px-6 py-3 rounded-lg transition">
             Termine ansehen
           </button>
         </div>
+
+        <p class="text-center text-xs text-gray-400 font-semibold tracking-widest uppercase mt-8">
+          Unsere Region. Ein starker Klang.
+        </p>
+
       </div>
     </section>
 
     <!-- Section: Anmeldung -->
     <section id="section-anmeldung" class="hidden space-y-6">
       <div class="bg-white p-6 sm:p-8 rounded-lg shadow-md border-t-4 border-[#C59B27]">
-        <h2 class="text-2xl font-bold text-[#00382B] mb-2">Anmeldung zum Bezirksprojekt</h2>
-        <p class="text-sm text-gray-600 mb-6">Bitte fülle das Formular vollständig aus.</p>
+        <h2 class="text-2xl font-bold text-[#00382B] mb-2">Anmeldung zum Bezirksorchester</h2>
+        <p class="text-sm text-gray-600 mb-6">Benefizkonzert 2027 – Bitte fülle das Formular aus.</p>
 
         <form id="regForm" class="space-y-4">
           <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -166,7 +201,7 @@
         <form id="adminLoginForm" class="space-y-4">
           <div>
             <label class="block text-sm font-semibold text-gray-700 mb-1">Benutzername</label>
-            <input type="text" id="adminEmail" required placeholder="z. B. admin" class="w-full border border-gray-300 p-2.5 rounded focus:ring-2 focus:ring-[#00382B] focus:outline-none">
+            <input type="text" id="adminEmail" required placeholder="admin" class="w-full border border-gray-300 p-2.5 rounded focus:ring-2 focus:ring-[#00382B] focus:outline-none">
           </div>
           <div>
             <label class="block text-sm font-semibold text-gray-700 mb-1">Passwort</label>
@@ -245,7 +280,18 @@
         .order('date', { ascending: true });
 
       if (error || !data || data.length === 0) {
-        container.innerHTML = '<p class="text-gray-500 italic">Derzeit sind keine Termine eingetragen.</p>';
+        container.innerHTML = `
+          <div class="border-l-4 border-[#C59B27] bg-gray-50 p-4 rounded shadow-sm flex flex-col md:flex-row justify-between md:items-center gap-2">
+            <div>
+              <span class="text-xs font-bold uppercase tracking-wider text-[#00382B] bg-emerald-100 px-2 py-0.5 rounded">Benefizkonzert</span>
+              <h3 class="font-bold text-lg mt-1">Koralmhalle Deutschlandsberg</h3>
+              <p class="text-sm text-gray-600">Bezirksorchester Deutschlandsberg</p>
+            </div>
+            <div class="text-right text-sm font-semibold text-gray-700">
+              <div>📅 Freitag, 12. Februar 2027</div>
+            </div>
+          </div>
+        `;
         return;
       }
 
@@ -256,7 +302,7 @@
             <h3 class="font-bold text-lg mt-1">${item.location || 'Ort folgt'}</h3>
             ${item.notes ? `<p class="text-sm text-gray-600">${item.notes}</p>` : ''}
           </div>
-          <div class="text-right md:text-right text-sm font-semibold text-gray-700">
+          <div class="text-right text-sm font-semibold text-gray-700">
             <div>📅 ${item.date}</div>
             <div>⏰ ${item.time || ''} Uhr</div>
           </div>
@@ -325,7 +371,6 @@
       }
     }
 
-    // Login via offizieller Supabase-SDK Methode
     document.getElementById('adminLoginForm').addEventListener('submit', async (e) => {
       e.preventDefault();
       if (!supabaseClient) return alert('Supabase Client nicht verfügbar.');
