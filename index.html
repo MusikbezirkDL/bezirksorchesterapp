@@ -354,8 +354,8 @@
 
   <!-- App Script -->
   <script>
-    const SUPABASE_URL = 'https://lrxwxkpcubgxzjjvlwmh.supabase.co';
-    const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImxyeHd4a3BjdWJneHpqanZsd21oIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODk3MDUyMzMsImV4cCI6MjEwNTI4MTIzM30.M_H-ZkHlhM7S73f47Dw5341OjgtTRrJIHhDMuWkRNWc';
+    const SUPABASE_URL = 'https://lrwxkpcubgxzjjvlwmh.supabase.co';
+    const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imxyd3hrcGN1Ymd4empqdmx3bWgiLCJyb2xlIjoiYW5vbiIsImlhdCI6MTc4OTcwNTIzMywiZXhwIjoyMTA1MjgxMjMzfQ.M_H-ZkHlhM7S73f47Dw5341OjgtTRrJIHhDMuWkRNWc';
 
     const supabaseClient = window.supabase ? window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY) : null;
 
@@ -473,7 +473,7 @@
       `).join('');
     }
 
-    // CRUD Termine & Programm im Admin
+    // --- TERMIN HINZUFÜGEN ---
     document.getElementById('addAppointmentForm').addEventListener('submit', async (e) => {
       e.preventDefault();
       const payload = {
@@ -483,9 +483,15 @@
         time: document.getElementById('app-time').value || null,
         notes: document.getElementById('app-notes').value || null
       };
-      await supabaseClient.from('appointments').insert([payload]);
-      document.getElementById('addAppointmentForm').reset();
-      loadAdminAppointments();
+
+      const { error } = await supabaseClient.from('appointments').insert([payload]);
+      if (error) {
+        alert('Fehler beim Erstellen des Termins: ' + error.message);
+      } else {
+        document.getElementById('addAppointmentForm').reset();
+        await loadAdminAppointments();
+        await loadTermine();
+      }
     });
 
     async function loadAdminAppointments() {
@@ -510,9 +516,11 @@
       if (confirm('Termin wirklich löschen?')) {
         await supabaseClient.from('appointments').delete().eq('id', id);
         loadAdminAppointments();
+        loadTermine();
       }
     }
 
+    // --- PROGRAMM HINZUFÜGEN ---
     document.getElementById('addProgramForm').addEventListener('submit', async (e) => {
       e.preventDefault();
       const payload = {
@@ -520,9 +528,15 @@
         composer: document.getElementById('prog-composer').value || null,
         notes: document.getElementById('prog-notes').value || null
       };
-      await supabaseClient.from('program_items').insert([payload]);
-      document.getElementById('addProgramForm').reset();
-      loadAdminProgram();
+
+      const { error } = await supabaseClient.from('program_items').insert([payload]);
+      if (error) {
+        alert('Fehler beim Erstellen des Stücks: ' + error.message);
+      } else {
+        document.getElementById('addProgramForm').reset();
+        await loadAdminProgram();
+        await loadProgramm();
+      }
     });
 
     async function loadAdminProgram() {
@@ -546,6 +560,45 @@
       if (confirm('Stück wirklich löschen?')) {
         await supabaseClient.from('program_items').delete().eq('id', id);
         loadAdminProgram();
+        loadProgramm();
+      }
+    }
+
+    // --- ANMELDUNGEN BEARBEITEN & LÖSCHEN ---
+    async function editApplication(id) {
+      const { data: app, error } = await supabaseClient.from('applications').select('*').eq('id', id).single();
+      if (error || !app) {
+        alert('Fehler beim Laden der Anmeldedaten.');
+        return;
+      }
+
+      const newName = prompt('Name:', app.name);
+      if (newName === null) return;
+
+      const newVerein = prompt('Verein:', app.music_association_name || '');
+      if (newVerein === null) return;
+
+      const newInstrument = prompt('Instrument:', app.instrument || '');
+      if (newInstrument === null) return;
+
+      const newEmail = prompt('E-Mail:', app.email || '');
+      if (newEmail === null) return;
+
+      const newPhone = prompt('Telefon:', app.phone || '');
+      if (newPhone === null) return;
+
+      const { error: updateError } = await supabaseClient.from('applications').update({
+        name: newName,
+        music_association_name: newVerein,
+        instrument: newInstrument,
+        email: newEmail,
+        phone: newPhone
+      }).eq('id', id);
+
+      if (updateError) {
+        alert('Fehler beim Speichern der Änderung: ' + updateError.message);
+      } else {
+        loadApplications();
       }
     }
 
@@ -556,6 +609,7 @@
       }
     }
 
+    // --- FORMULAR ANMELDUNG ---
     document.getElementById('regForm').addEventListener('submit', async (e) => {
       e.preventDefault();
       const btn = document.getElementById('submitBtn');
@@ -662,10 +716,11 @@
           <td class="p-3">${app.email || ''}</td>
           <td class="p-3">${app.phone || ''}</td>
           <td class="p-3 text-xs text-gray-500">${app.created_at ? new Date(app.created_at).toLocaleDateString('de-AT') : '-'}</td>
-          <td class="p-3"><button onclick="deleteApplication('${app.id}')" class="text-red-600 font-bold hover:underline text-xs">Löschen</button></td>
+          <td class="p-3 space-x-2">
+            <button onclick="editApplication('${app.id}')" class="text-blue-600 font-bold hover:underline text-xs">Bearbeiten</button>
+            <button onclick="deleteApplication('${app.id}')" class="text-red-600 font-bold hover:underline text-xs">Löschen</button>
+          </td>
         </tr>
       `).join('');
     }
   </script>
-</body>
-</html>
