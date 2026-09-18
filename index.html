@@ -297,7 +297,7 @@
 
     function populateDropdowns() {
       const options = globalData.projectYears.length > 0 
-        ? globalData.projectYears.map(y => `<option value="${y.id}" ${y.is_active ? 'selected' : ''}>${y.year_label || y.year || 'Projektjahr'} ${y.is_active ? '(Aktiv)' : ''}</option>`).join('')
+        ? globalData.projectYears.map(y => `<option value="${y.id}" ${y.is_active ? 'selected' : ''}>${y.year_label || y.year || y.name || 'Projektjahr'} ${y.is_active ? '(Aktiv)' : ''}</option>`).join('')
         : '<option value="">Kein Projektjahr vorhanden</option>';
 
       ['reg-project-year', 'app-project-year', 'prog-project-year'].forEach(id => {
@@ -311,12 +311,13 @@
       if (!tbody) return;
       tbody.innerHTML = globalData.projectYears.map(y => `
         <tr class="border-b">
-          <td class="p-2 font-bold">${y.year_label || y.year}</td>
+          <td class="p-2 font-bold">${y.year_label || y.year || y.name}</td>
           <td class="p-2">${y.is_active ? '<span class="bg-green-100 text-green-800 text-xs px-2 py-0.5 rounded font-bold">Aktiv</span>' : '<span class="bg-gray-200 text-gray-700 text-xs px-2 py-0.5 rounded font-semibold">Inaktiv</span>'}</td>
-          <td class="p-2">
+          <td class="p-2 flex gap-2">
             ${y.is_active 
               ? `<button onclick="toggleProjectYear('${y.id}', false)" class="bg-amber-600 text-white text-xs px-2.5 py-1 rounded font-bold">Deaktivieren</button>` 
               : `<button onclick="toggleProjectYear('${y.id}', true)" class="bg-emerald-600 text-white text-xs px-2.5 py-1 rounded font-bold">Aktivieren</button>`}
+            <button onclick="deleteProjectYear('${y.id}', '${y.year_label || y.year || y.name}')" class="bg-red-600 text-white text-xs px-2.5 py-1 rounded font-bold">Löschen</button>
           </td>
         </tr>
       `).join('');
@@ -332,6 +333,19 @@
       const { error } = await supabaseClient.from('project_years').update({ is_active: targetState }).eq('id', id);
       if (error) alert('Fehler: ' + error.message);
       else await loadProjectYears();
+    }
+
+    async function deleteProjectYear(id, label) {
+      const confirmText = `Möchtest du das Projektjahr "${label}" WIRKLICH löschen?\n\nACHTUNG: Alle zugehörigen Termine, Anmeldungen und Programmzeilen werden dabei ebenfalls gelöscht!`;
+      if (confirm(confirmText)) {
+        const { error } = await supabaseClient.from('project_years').delete().eq('id', id);
+        if (error) {
+          alert('Fehler beim Löschen: ' + error.message);
+        } else {
+          await loadProjectYears();
+          if (typeof loadAdminData === 'function') await loadAdminData();
+        }
+      }
     }
 
     async function checkAdminSession() {
@@ -391,7 +405,7 @@
 
     function getYearLabel(yearId) {
       const match = globalData.projectYears.find(y => y.id === yearId);
-      return match ? (match.year_label || match.year) : '-';
+      return match ? (match.year_label || match.year || match.name) : '-';
     }
 
     function setupFormListeners() {
@@ -435,13 +449,15 @@
         const shouldActivate = document.getElementById('py-active').checked;
 
         const { error } = await supabaseClient.from('project_years').insert([{
+          name: label,
           year: label,
           year_label: label,
           is_active: shouldActivate
         }]);
 
-        if (error) alert('Fehler: ' + error.message);
-        else {
+        if (error) {
+          alert('Fehler: ' + error.message);
+        } else {
           document.getElementById('addProjectYearForm').reset();
           await loadProjectYears();
         }
