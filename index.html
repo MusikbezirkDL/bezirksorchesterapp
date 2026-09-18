@@ -247,6 +247,15 @@
     document.addEventListener('DOMContentLoaded', () => { 
       loadProjectYears(); 
       setupFormListeners();
+
+      if (supabaseClient) {
+        supabaseClient.auth.onAuthStateChange((event, session) => {
+          const sectionAdmin = document.getElementById('section-admin');
+          if (sectionAdmin && !sectionAdmin.classList.contains('hidden')) {
+            checkAdminSession();
+          }
+        });
+      }
     });
 
     function showSection(sectionId) {
@@ -261,6 +270,7 @@
 
       window.scrollTo(0, 0);
 
+      if (sectionId === 'anmeldung') populateDropdowns();
       if (sectionId === 'termine') loadTermine();
       if (sectionId === 'programm') loadProgramm();
       if (sectionId === 'admin') checkAdminSession();
@@ -332,7 +342,7 @@
       if (session) {
         if (loginBox) loginBox.classList.add('hidden');
         if (dashboard) dashboard.classList.remove('hidden');
-        loadAdminData();
+        await loadAdminData();
       } else {
         if (loginBox) loginBox.classList.remove('hidden');
         if (dashboard) dashboard.classList.add('hidden');
@@ -351,6 +361,7 @@
       globalData.applications = regRes.data || [];
 
       renderAdminTables();
+      populateDropdowns();
     }
 
     function renderAdminTables() {
@@ -395,6 +406,26 @@
           alert('Login fehlgeschlagen: ' + error.message);
         } else {
           checkAdminSession();
+        }
+      });
+
+      document.getElementById('regForm')?.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const payload = {
+          name: document.getElementById('name').value,
+          birth_date: document.getElementById('birth_date').value,
+          email: document.getElementById('email').value,
+          phone: document.getElementById('phone').value,
+          music_association_name: document.getElementById('verein').value,
+          instrument: document.getElementById('instrument').value,
+          project_year_id: document.getElementById('reg-project-year').value || null
+        };
+        const { error } = await supabaseClient.from('applications').insert([payload]);
+        if (error) alert('Fehler bei der Anmeldung: ' + error.message);
+        else {
+          alert('Vielen Dank für Ihre Anmeldung!');
+          document.getElementById('regForm').reset();
+          showSection('home');
         }
       });
 
