@@ -48,7 +48,7 @@
         <div id="save-the-date-banner" class="hidden bg-[#00382B] text-white p-6 rounded-lg text-center shadow-inner my-6">
           <p class="text-xs uppercase tracking-widest text-[#C59B27] font-semibold">Save the Date!</p>
           <p id="banner-date-text" class="text-2xl font-bold mt-1">Freitag, 12. Februar 2027</p>
-          <p id="banner-[#00382B]-location-text" class="text-md text-gray-200">Koralmhalle Deutschlandsberg</p>
+          <p id="banner-location-text" class="text-md text-gray-200">Koralmhalle Deutschlandsberg</p>
         </div>
 
         <div class="bg-emerald-50 border-l-4 border-[#00382B] p-4 my-4 rounded">
@@ -164,10 +164,10 @@
               <label class="block text-sm font-semibold text-gray-700 mb-1" for="badge">Leistungsabzeichen</label>
               <select id="badge" class="w-full border border-gray-300 p-2.5 rounded focus:ring-2 focus:ring-[#00382B] focus:outline-none">
                 <option value="">Keines / Noch nicht absolviert</option>
-                <option value="Junior">Junior</option>
-                <option value="Bronze">Bronze</option>
-                <option value="Silber">Silber</option>
-                <option value="Gold">Gold</option>
+                <option value="Junior">Junior-Abzeichen</option>
+                <option value="Bronze">Bronze (JLA)</option>
+                <option value="Silber">Silber (JLA)</option>
+                <option value="Gold">Gold (MLA)</option>
               </select>
             </div>
             <div>
@@ -354,8 +354,8 @@
 
   <!-- App Script -->
   <script>
-    const SUPABASE_URL = 'https://lrwxkpcubgxzjjvlwmh.supabase.co';
-    const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imxyd3hrcGN1Ymd4empqdmx3bWgiLCJyb2xlIjoiYW5vbiIsImlhdCI6MTc4OTcwNTIzMywiZXhwIjoyMTA1MjgxMjMzfQ.M_H-ZkHlhM7S73f47Dw5341OjgtTRrJIHhDMuWkRNWc';
+    const SUPABASE_URL = 'https://lrxwxkpcubgxzjjvlwmh.supabase.co';
+    const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImxyeHd4a3BjdWJneHpqanZsd21oIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODk3MDUyMzMsImV4cCI6MjEwNTI4MTIzM30.M_H-ZkHlhM7S73f47Dw5341OjgtTRrJIHhDMuWkRNWc';
 
     const supabaseClient = window.supabase ? window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY) : null;
 
@@ -376,7 +376,7 @@
 
         if (showItem) showSaveTheDate = (showItem.value === true || showItem.value === 'true');
         if (dateItem) document.getElementById('banner-date-text').innerText = dateItem.value;
-        if (locItem) document.getElementById('banner-[#00382B]-location-text').innerText = locItem.value;
+        if (locItem) document.getElementById('banner-location-text').innerText = locItem.value;
       }
 
       const banner = document.getElementById('save-the-date-banner');
@@ -724,3 +724,5 @@
       `).join('');
     }
   </script>
+</body>
+</html>
