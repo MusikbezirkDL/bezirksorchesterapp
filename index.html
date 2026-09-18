@@ -229,9 +229,14 @@
   <script>
     // Supabase Konfiguration
     const SUPABASE_URL = 'https://lrwxkpcubgxzjjvlwmh.supabase.co';
-    const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImxyeHd4a3BjdWJneHpqanZsd21oIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODk3MDUyMzMsImV4cCI6MjEwNTI4MTIzM30.M_H-ZkHlhM7S73f47Dw5341OjgtTRrJIHhDMuWkRNWc'; // <--- HIER DEINEN PUBLISHABLE KEY EINTRAGEN
+    const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImxyeHd4a3BjdWJneHpqanZsd21oIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODk3MDUyMzMsImV4cCI6MjEwNTI4MTIzM30.M_H-ZkHlhM7S73f47Dw5341OjgtTRrJIHhDMuWkRNWc';
 
-    const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+    const supabaseClient = window.supabase ? window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
+      auth: {
+        persistSession: true,
+        autoRefreshToken: true
+      }
+    }) : null;
 
     function showSection(sectionId) {
       ['home', 'anmeldung', 'termine', 'admin'].forEach(id => {
@@ -245,6 +250,7 @@
     }
 
     async function loadTermine() {
+      if (!supabaseClient) return;
       const container = document.getElementById('termine-list');
       container.innerHTML = '<p class="text-gray-500 italic">Termine werden geladen...</p>';
 
@@ -275,6 +281,8 @@
 
     document.getElementById('regForm').addEventListener('submit', async (e) => {
       e.preventDefault();
+      if (!supabaseClient) return alert('Supabase konnte nicht geladen werden.');
+
       const btn = document.getElementById('submitBtn');
       btn.innerText = 'Wird gesendet...';
       btn.disabled = true;
@@ -282,19 +290,14 @@
       const vereinRaw = document.getElementById('verein').value.split('|');
 
       try {
-        const { data: years, error: yearError } = await supabaseClient
+        const { data: years } = await supabaseClient
           .from('project_years')
           .select('id')
           .eq('is_active', true)
-          .single();
-
-        if (yearError || !years) {
-          alert('Fehler: Kein aktives Projektjahr in Supabase gefunden!');
-          return;
-        }
+          .maybeSingle();
 
         const payload = {
-          project_year_id: years.id,
+          project_year_id: years ? years.id : null,
           name: document.getElementById('name').value,
           birth_date: document.getElementById('birth_date').value,
           phone: document.getElementById('phone').value,
@@ -325,6 +328,7 @@
     });
 
     async function checkAdminSession() {
+      if (!supabaseClient) return;
       const { data: { session } } = await supabaseClient.auth.getSession();
       if (session) {
         document.getElementById('admin-login-box').classList.add('hidden');
@@ -338,23 +342,31 @@
 
     document.getElementById('adminLoginForm').addEventListener('submit', async (e) => {
       e.preventDefault();
+      if (!supabaseClient) return alert('Supabase konnte nicht geladen werden.');
+
       const email = document.getElementById('adminEmail').value;
       const password = document.getElementById('adminPassword').value;
 
-      const { error } = await supabaseClient.auth.signInWithPassword({ email, password });
-      if (error) {
-        alert('Login fehlgeschlagen: ' + error.message);
-      } else {
-        checkAdminSession();
+      try {
+        const { data, error } = await supabaseClient.auth.signInWithPassword({ email, password });
+        if (error) {
+          alert('Login fehlgeschlagen: ' + error.message);
+        } else {
+          checkAdminSession();
+        }
+      } catch (err) {
+        alert('Netzwerk- oder Verbindungsfehler beim Login: ' + err.message);
       }
     });
 
     async function logoutAdmin() {
+      if (!supabaseClient) return;
       await supabaseClient.auth.signOut();
       checkAdminSession();
     }
 
     async function loadApplications() {
+      if (!supabaseClient) return;
       const tbody = document.getElementById('applications-table-body');
       const { data, error } = await supabaseClient
         .from('applications')
