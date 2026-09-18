@@ -46,7 +46,6 @@
 
         <div id="no-active-project-msg" class="hidden bg-yellow-50 border-l-4 border-yellow-500 p-4 my-4 rounded text-center text-yellow-800">
           <p class="font-bold">Zurzeit ist kein Projektjahr aktiv.</p>
-          <p class="text-xs mt-1">Bitte schauen Sie zu einem späteren Zeitpunkt wieder vorbei!</p>
         </div>
 
         <div class="flex flex-wrap justify-center gap-4 mt-6">
@@ -56,6 +55,7 @@
       </div>
     </section>
 
+    <!-- ANMELDUNG -->
     <section id="section-anmeldung" class="hidden space-y-6">
       <div class="bg-white p-6 sm:p-8 rounded-lg shadow-md border-t-4 border-[#C59B27]">
         <h2 class="text-2xl font-bold text-[#00382B] mb-2">Anmeldung zum Bezirksorchester</h2>
@@ -82,7 +82,24 @@
           </div>
           <div>
             <label class="block text-sm font-semibold text-gray-700 mb-1">Musikverein / Stammkapelle *</label>
-            <input type="text" id="verein" required class="w-full border p-2.5 rounded">
+            <select id="verein" required class="w-full border p-2.5 rounded">
+              <option value="">-- Bitte wählen --</option>
+              <option value="Stadtkapelle Deutschlandsberg">Stadtkapelle Deutschlandsberg</option>
+              <option value="Musikverein Bad Gams">Musikverein Bad Gams</option>
+              <option value="Musikverein Groß St. Florian">Musikverein Groß St. Florian</option>
+              <option value="Musikverein St. Peter im Sulmtal">Musikverein St. Peter im Sulmtal</option>
+              <option value="Wolfram Berg- und Hüttenkapelle St. Martin im Sulmtal">Wolfram Berg- und Hüttenkapelle St. Martin im Sulmtal</option>
+              <option value="Marktkapelle Frauental">Marktkapelle Frauental</option>
+              <option value="Marktkapelle Wettmannstätten">Marktkapelle Wettmannstätten</option>
+              <option value="Musikverein Pölfing-Brunn">Musikverein Pölfing-Brunn</option>
+              <option value="Marktkapelle Wies">Marktkapelle Wies</option>
+              <option value="Stadtkapelle Schwanberg">Stadtkapelle Schwanberg</option>
+              <option value="Musikverein Eibiswald">Musikverein Eibiswald</option>
+              <option value="Marktkapelle St. Stefan ob Stainz">Marktkapelle St. Stefan ob Stainz</option>
+              <option value="Marktkapelle Stainz">Marktkapelle Stainz</option>
+              <option value="Musikverein St. Josef">Musikverein St. Josef</option>
+              <option value="Sonstiger Verein">Sonstiger Verein</option>
+            </select>
           </div>
           <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
@@ -90,8 +107,8 @@
               <input type="text" id="instrument" required class="w-full border p-2.5 rounded">
             </div>
             <div>
-              <label class="block text-sm font-semibold text-gray-700 mb-1">Projektjahr</label>
-              <select id="reg-project-year" class="w-full border p-2.5 rounded"></select>
+              <label class="block text-sm font-semibold text-gray-700 mb-1">Projektjahr *</label>
+              <select id="reg-project-year" required class="w-full border p-2.5 rounded"></select>
             </div>
           </div>
           <button type="submit" class="w-full bg-[#00382B] text-white font-bold py-3 rounded">Verbindlich Anmelden</button>
@@ -99,21 +116,35 @@
       </div>
     </section>
 
-    <!-- Schönere Terminübersicht -->
+    <!-- TERMINE ÜBERSICHT -->
     <section id="section-termine" class="hidden space-y-6">
       <div class="bg-white p-6 sm:p-8 rounded-lg shadow-md border-t-4 border-[#00382B]">
-        <h2 class="text-2xl font-bold text-[#00382B] mb-4">Proben- & Konzerttermine</h2>
+        <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
+          <h2 class="text-2xl font-bold text-[#00382B]">Proben- & Konzerttermine</h2>
+          <div class="flex items-center gap-2">
+            <label class="text-xs font-semibold text-gray-600">Projektjahr Filter:</label>
+            <select id="filter-termine-year" onchange="loadTermine()" class="border p-1.5 text-xs rounded"></select>
+          </div>
+        </div>
         <div id="termine-list" class="grid grid-cols-1 gap-4"></div>
       </div>
     </section>
 
+    <!-- PROGRAMM ÜBERSICHT -->
     <section id="section-programm" class="hidden space-y-6">
       <div class="bg-white p-6 sm:p-8 rounded-lg shadow-md border-t-4 border-[#00382B]">
-        <h2 class="text-2xl font-bold text-[#00382B] mb-4">Konzertprogramm</h2>
+        <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
+          <h2 class="text-2xl font-bold text-[#00382B]">Konzertprogramm</h2>
+          <div class="flex items-center gap-2">
+            <label class="text-xs font-semibold text-gray-600">Projektjahr Filter:</label>
+            <select id="filter-programm-year" onchange="loadProgramm()" class="border p-1.5 text-xs rounded"></select>
+          </div>
+        </div>
         <div id="programm-list" class="space-y-4"></div>
       </div>
     </section>
 
+    <!-- ADMIN AREA -->
     <section id="section-admin" class="hidden space-y-6">
       <div id="admin-login-box" class="max-w-md mx-auto bg-white p-6 rounded-lg shadow-md border">
         <h2 class="text-xl font-bold text-[#00382B] mb-4">Admin Login</h2>
@@ -130,6 +161,7 @@
           <button onclick="logoutAdmin()" class="bg-red-600 text-white text-xs px-3 py-2 rounded font-semibold">Abmelden</button>
         </div>
 
+        <!-- PROJEKTJAHRE -->
         <div class="bg-white p-6 rounded-lg shadow-md border-t-4 border-amber-600">
           <h3 class="text-lg font-bold text-[#00382B] mb-4">Projektjahre verwalten</h3>
           <form id="addProjectYearForm" class="flex flex-col sm:flex-row gap-2 mb-4 bg-amber-50 p-3 rounded border border-amber-200">
@@ -150,6 +182,7 @@
           </div>
         </div>
 
+        <!-- TERMINE -->
         <div class="bg-white p-6 rounded-lg shadow-md border-t-4 border-[#00382B]">
           <div class="flex justify-between items-center mb-4">
             <h3 class="text-lg font-bold text-[#00382B]">Termine verwalten</h3>
@@ -166,11 +199,11 @@
               <option value="Registerprobe">Registerprobe</option>
               <option value="Sonstiges">Sonstiges</option>
             </select>
-            <input type="text" id="app-location" placeholder="Ort" required class="border p-2 text-xs rounded">
+            <input type="text" id="app-location" placeholder="Ort (z. B. Musikheim Deutschlandsberg)" required class="border p-2 text-xs rounded">
             <input type="date" id="app-date" required class="border p-2 text-xs rounded">
             <input type="time" id="app-time" class="border p-2 text-xs rounded">
             <select id="app-project-year" class="border p-2 text-xs rounded"></select>
-            <input type="text" id="app-notes" placeholder="Anmerkungen" class="border p-2 text-xs rounded">
+            <input type="text" id="app-notes" placeholder="Anmerkungen (Titel / Info)" class="border p-2 text-xs rounded">
             <button type="submit" class="bg-[#00382B] text-white font-bold text-xs p-2 rounded sm:col-span-3">Termin Hinzufügen</button>
           </form>
 
@@ -182,6 +215,7 @@
           </table>
         </div>
 
+        <!-- PROGRAMM -->
         <div class="bg-white p-6 rounded-lg shadow-md border-t-4 border-[#00382B]">
           <div class="flex justify-between items-center mb-4">
             <h3 class="text-lg font-bold text-[#00382B]">Konzertprogramm verwalten</h3>
@@ -193,35 +227,42 @@
 
           <form id="addProgramForm" class="grid grid-cols-1 sm:grid-cols-3 gap-2 mb-4 bg-gray-50 p-3 rounded border">
             <input type="text" id="prog-title" placeholder="Stücktitel" required class="border p-2 text-xs rounded">
-            <input type="text" id="prog-composer" placeholder="Komponist / Arrangeur" class="border p-2 text-xs rounded">
-            <select id="prog-project-year" class="border p-2 text-xs rounded"></select>
-            <input type="text" id="prog-notes" placeholder="Details / Anmerkung" class="border p-2 text-xs rounded sm:col-span-2">
-            <button type="submit" class="bg-[#00382B] text-white font-bold text-xs p-2 rounded">Stück Hinzufügen</button>
+            <input type="text" id="prog-composer" placeholder="Komponist" class="border p-2 text-xs rounded">
+            <input type="text" id="prog-arranger" placeholder="Arrangeur" class="border p-2 text-xs rounded">
+            <select id="prog-project-year" class="border p-2 text-xs rounded sm:col-span-2"></select>
+            <input type="text" id="prog-notes" placeholder="Details / Anmerkung" class="border p-2 text-xs rounded">
+            <button type="submit" class="bg-[#00382B] text-white font-bold text-xs p-2 rounded sm:col-span-3">Stück Hinzufügen</button>
           </form>
 
           <table class="w-full text-left text-sm border">
             <thead class="bg-gray-100 text-xs">
-              <tr><th class="p-2">Titel</th><th class="p-2">Komponist</th><th class="p-2">Details</th><th class="p-2">Aktion</th></tr>
+              <tr><th class="p-2">Titel</th><th class="p-2">Komponist / Arrangeur</th><th class="p-2">Details</th><th class="p-2">Aktion</th></tr>
             </thead>
             <tbody id="admin-program-table"></tbody>
           </table>
         </div>
 
+        <!-- ANMELDUNGEN VERWALTEN -->
         <div class="bg-white p-6 rounded-lg shadow-md border-t-4 border-[#C59B27]">
-          <div class="flex justify-between items-center mb-4">
-            <h3 class="text-lg font-bold text-[#00382B]">Anmeldungen</h3>
+          <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-4">
+            <div class="flex items-center gap-4">
+              <h3 class="text-lg font-bold text-[#00382B]">Anmeldungen</h3>
+              <select id="filter-admin-app-year" onchange="renderAdminTables()" class="border p-1.5 text-xs rounded"></select>
+            </div>
             <div class="flex gap-2">
               <button onclick="exportData('applications', 'excel')" class="bg-emerald-700 text-white text-xs px-2.5 py-1.5 rounded font-bold">Excel Export</button>
               <button onclick="exportData('applications', 'pdf')" class="bg-red-700 text-white text-xs px-2.5 py-1.5 rounded font-bold">PDF Export</button>
             </div>
           </div>
 
-          <table class="w-full text-left text-sm border">
-            <thead class="bg-gray-100 text-xs">
-              <tr><th class="p-2">Name</th><th class="p-2">Verein</th><th class="p-2">Instrument</th><th class="p-2">E-Mail</th><th class="p-2">Telefon</th><th class="p-2">Aktion</th></tr>
-            </thead>
-            <tbody id="applications-table-body"></tbody>
-          </table>
+          <div class="overflow-x-auto">
+            <table class="w-full text-left text-sm border">
+              <thead class="bg-gray-100 text-xs">
+                <tr><th class="p-2">Name</th><th class="p-2">Verein</th><th class="p-2">Instrument</th><th class="p-2">E-Mail</th><th class="p-2">Telefon</th><th class="p-2">Projektjahr</th><th class="p-2">Aktion</th></tr>
+              </thead>
+              <tbody id="applications-table-body"></tbody>
+            </table>
+          </div>
         </div>
 
       </div>
@@ -285,13 +326,13 @@
     }
 
     function populateDropdowns() {
-      const options = globalData.projectYears.length > 0 
+      const allOptions = globalData.projectYears.length > 0 
         ? globalData.projectYears.map(y => `<option value="${y.id}" ${y.is_active ? 'selected' : ''}>${y.year_label || y.year || y.name} ${y.is_active ? '(Aktiv)' : ''}</option>`).join('')
         : '<option value="">Kein Projektjahr vorhanden</option>';
 
-      ['reg-project-year', 'app-project-year', 'prog-project-year'].forEach(id => {
+      ['reg-project-year', 'app-project-year', 'prog-project-year', 'filter-termine-year', 'filter-programm-year', 'filter-admin-app-year'].forEach(id => {
         const el = document.getElementById(id);
-        if (el) el.innerHTML = options;
+        if (el) el.innerHTML = allOptions;
       });
     }
 
@@ -304,7 +345,7 @@
           <td class="p-2">${y.is_active ? '<span class="bg-green-100 text-green-800 text-xs px-2 py-0.5 rounded font-bold">Aktiv</span>' : '<span class="bg-gray-200 text-gray-700 text-xs px-2 py-0.5 rounded font-semibold">Inaktiv</span>'}</td>
           <td class="p-2 flex gap-2">
             ${y.is_active 
-              ? `<button onclick="toggleProjectYear('${y.id}', false)" class="bg-amber-600 text-white text-xs px-2.5 py-1 rounded font-bold">Abschließen / Deaktivieren</button>` 
+              ? `<button onclick="toggleProjectYear('${y.id}', false)" class="bg-amber-600 text-white text-xs px-2.5 py-1 rounded font-bold">Deaktivieren</button>` 
               : `<button onclick="toggleProjectYear('${y.id}', true)" class="bg-emerald-600 text-white text-xs px-2.5 py-1 rounded font-bold">Aktivieren</button>`}
             <button onclick="deleteProjectYear('${y.id}', '${y.year_label || y.year || y.name}')" class="bg-red-600 text-white text-xs px-2.5 py-1 rounded font-bold">Löschen</button>
           </td>
@@ -325,7 +366,7 @@
     }
 
     async function deleteProjectYear(id, label) {
-      if (confirm(`Möchtest du das Projektjahr "${label}" WIRKLICH löschen?\n\nAlle zugehörigen Termine, Anmeldungen und Musikstücke werden gelöscht!`)) {
+      if (confirm(`Möchtest du das Projektjahr "${label}" WIRKLICH löschen?\n\nAlle verknüpften Daten werden gelöscht!`)) {
         const { error } = await supabaseClient.from('project_years').delete().eq('id', id);
         if (error) alert('Fehler beim Löschen: ' + error.message);
         else { await loadProjectYears(); if (typeof loadAdminData === 'function') await loadAdminData(); }
@@ -365,27 +406,39 @@
     function renderAdminTables() {
       document.getElementById('admin-appointments-table').innerHTML = globalData.appointments.map(i => `
         <tr class="border-b">
-          <td class="p-2">${i.type}</td><td class="p-2">${i.location}</td><td class="p-2">${i.date}</td><td class="p-2">${i.time || '-'}</td>
+          <td class="p-2">${i.type}</td>
+          <td class="p-2 font-semibold">${i.location || '-'}</td>
+          <td class="p-2">${formatDateGerman(i.date)}</td>
+          <td class="p-2">${i.time ? i.time.substring(0, 5) + ' Uhr' : '-'}</td>
           <td class="p-2 font-semibold text-xs">${getYearLabel(i.project_year_id)}</td>
           <td class="p-2"><button onclick="deleteEntry('appointments', '${i.id}')" class="text-red-600 font-bold text-xs">Löschen</button></td>
         </tr>
       `).join('');
 
-      document.getElementById('admin-program-table').innerHTML = globalData.program.map(i => `
-        <tr class="border-b">
-          <td class="p-2 font-semibold">${i.title}</td><td class="p-2">${i.composer || '-'}</td><td class="p-2">${i.notes || i.description || '-'}</td>
-          <td class="p-2"><button onclick="deleteEntry('program_items', '${i.id}')" class="text-red-600 font-bold text-xs">Löschen</button></td>
-        </tr>
-      `).join('');
+      document.getElementById('admin-program-table').innerHTML = globalData.program.map(i => {
+        const compArr = [i.composer ? `K: ${i.composer}` : '', i.arranger ? `A: ${i.arranger}` : ''].filter(Boolean).join(' / ') || '-';
+        return `
+          <tr class="border-b">
+            <td class="p-2 font-semibold">${i.title}</td>
+            <td class="p-2">${compArr}</td>
+            <td class="p-2">${i.notes || i.description || '-'}</td>
+            <td class="p-2"><button onclick="deleteEntry('program_items', '${i.id}')" class="text-red-600 font-bold text-xs">Löschen</button></td>
+          </tr>
+        `;
+      }).join('');
 
-      // Anmeldungen mit Bearbeiten-Funktion
-      document.getElementById('applications-table-body').innerHTML = globalData.applications.map(i => `
+      // Anmeldungen mit Filterung nach Projektjahr & Bearbeiten-Modus
+      const filterYearId = document.getElementById('filter-admin-app-year')?.value;
+      const filteredApps = filterYearId ? globalData.applications.filter(a => a.project_year_id === filterYearId) : globalData.applications;
+
+      document.getElementById('applications-table-body').innerHTML = filteredApps.map(i => `
         <tr class="border-b">
           <td class="p-2 font-semibold">${i.name}</td>
           <td class="p-2">${i.music_association_name || ''}</td>
           <td class="p-2">${i.instrument || ''}</td>
           <td class="p-2">${i.email || ''}</td>
           <td class="p-2">${i.phone || ''}</td>
+          <td class="p-2 text-xs font-semibold">${getYearLabel(i.project_year_id)}</td>
           <td class="p-2 flex gap-2">
             <button onclick="editApplication('${i.id}')" class="text-blue-600 font-bold text-xs">Bearbeiten</button>
             <button onclick="deleteEntry('applications', '${i.id}')" class="text-red-600 font-bold text-xs">Löschen</button>
@@ -398,9 +451,9 @@
       const app = globalData.applications.find(a => a.id === id);
       if (!app) return;
 
-      const newName = prompt('Name:', app.name);
+      const newName = prompt('Vor- & Nachname:', app.name);
       if (newName === null) return;
-      const newVerein = prompt('Verein:', app.music_association_name || '');
+      const newVerein = prompt('Verein / Stammkapelle:', app.music_association_name || '');
       const newInst = prompt('Instrument:', app.instrument || '');
       const newEmail = prompt('E-Mail:', app.email || '');
       const newPhone = prompt('Telefon:', app.phone || '');
@@ -420,6 +473,12 @@
     function getYearLabel(yearId) {
       const match = globalData.projectYears.find(y => y.id === yearId);
       return match ? (match.year_label || match.year || match.name) : '-';
+    }
+
+    function formatDateGerman(dateString) {
+      if (!dateString) return '-';
+      const [year, month, day] = dateString.split('-');
+      return `${day}.${month}.${year}`;
     }
 
     function setupFormListeners() {
@@ -488,13 +547,16 @@
         else { document.getElementById('addAppointmentForm').reset(); loadAdminData(); }
       });
 
-      // Erstellung von Musikstücken mit Fallback
       document.getElementById('addProgramForm')?.addEventListener('submit', async (e) => {
         e.preventDefault();
         const notesVal = document.getElementById('prog-notes').value || null;
+        const composerVal = document.getElementById('prog-composer').value || null;
+        const arrangerVal = document.getElementById('prog-arranger').value || null;
+
         const payload = {
           title: document.getElementById('prog-title').value,
-          composer: document.getElementById('prog-composer').value || null,
+          composer: composerVal,
+          arranger: arrangerVal,
           project_year_id: document.getElementById('prog-project-year').value || null,
           notes: notesVal,
           description: notesVal
@@ -517,51 +579,63 @@
       }
     }
 
-    // Wunderschön gestaltete Terminübersicht inklusive Ort & Uhrzeit
+    // Termine Ansicht für User
     async function loadTermine() {
       const container = document.getElementById('termine-list');
-      if (!activeProjectYear) {
-        container.innerHTML = '<p class="text-amber-800 bg-amber-50 p-4 rounded font-semibold italic text-center">Zurzeit ist kein aktives Projektjahr vorhanden.</p>';
+      const selectedYearId = document.getElementById('filter-termine-year')?.value || activeProjectYear?.id;
+
+      if (!selectedYearId) {
+        container.innerHTML = '<p class="text-amber-800 bg-amber-50 p-4 rounded font-semibold italic text-center">Zurzeit ist kein Projektjahr ausgewählt oder vorhanden.</p>';
         return;
       }
-      const { data } = await supabaseClient.from('appointments').select('*').eq('project_year_id', activeProjectYear.id).order('date', { ascending: true });
+
+      const { data } = await supabaseClient.from('appointments').select('*').eq('project_year_id', selectedYearId).order('date', { ascending: true });
       if (!data || data.length === 0) {
         container.innerHTML = '<p class="text-gray-500 italic text-center p-4">Keine Termine eingetragen.</p>';
         return;
       }
+
       container.innerHTML = data.map(item => `
         <div class="bg-white border-l-4 border-[#00382B] p-5 rounded-lg shadow-sm hover:shadow-md transition flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-          <div>
-            <div class="flex items-center gap-2 mb-1">
-              <span class="text-xs font-extrabold uppercase text-emerald-900 bg-emerald-100 px-2 py-0.5 rounded">${item.type || 'Termin'}</span>
-              <span class="text-xs text-gray-500 font-medium">📍 ${item.location || 'Kein Ort angegeben'}</span>
+          <div class="space-y-1">
+            <div class="flex flex-wrap items-center gap-2">
+              <span class="text-xs font-extrabold uppercase text-emerald-900 bg-emerald-100 px-2.5 py-0.5 rounded tracking-wide">${item.type || 'Termin'}</span>
+              <span class="text-sm font-semibold text-emerald-900 flex items-center gap-1">📍 Ort: ${item.location || 'Nicht angegeben'}</span>
             </div>
-            <h3 class="font-bold text-lg text-gray-800">${item.notes || 'Probe / Auftritt'}</h3>
+            <h3 class="font-bold text-lg text-gray-800 mt-1">${item.notes || 'Probe / Auftritt'}</h3>
           </div>
-          <div class="bg-gray-50 p-2.5 rounded border text-right min-w-[140px]">
-            <div class="text-sm font-bold text-[#00382B]">📅 ${item.date}</div>
-            <div class="text-xs font-semibold text-gray-600 mt-0.5">⏰ ${item.time ? item.time.substring(0, 5) + ' Uhr' : 'Zeit folgt'}</div>
+          <div class="bg-emerald-50/60 border border-emerald-100 p-3 rounded-lg text-right min-w-[160px] self-stretch sm:self-auto flex flex-col justify-center">
+            <div class="text-sm font-bold text-[#00382B]">📅 ${formatDateGerman(item.date)}</div>
+            <div class="text-xs font-semibold text-emerald-800 mt-1">⏰ ${item.time ? item.time.substring(0, 5) + ' Uhr' : 'Zeit folgt'}</div>
           </div>
         </div>
       `).join('');
     }
 
+    // Programm Ansicht für User
     async function loadProgramm() {
       const container = document.getElementById('programm-list');
-      if (!activeProjectYear) {
-        container.innerHTML = '<p class="text-amber-800 bg-amber-50 p-4 rounded font-semibold italic text-center">Zurzeit ist kein aktives Projektjahr vorhanden.</p>';
+      const selectedYearId = document.getElementById('filter-programm-year')?.value || activeProjectYear?.id;
+
+      if (!selectedYearId) {
+        container.innerHTML = '<p class="text-amber-800 bg-amber-50 p-4 rounded font-semibold italic text-center">Zurzeit ist kein Projektjahr ausgewählt oder vorhanden.</p>';
         return;
       }
-      const { data } = await supabaseClient.from('program_items').select('*').eq('project_year_id', activeProjectYear.id);
+
+      const { data } = await supabaseClient.from('program_items').select('*').eq('project_year_id', selectedYearId);
       if (!data || data.length === 0) {
         container.innerHTML = '<p class="text-gray-500 italic text-center p-4">Kein Programm vorhanden.</p>';
         return;
       }
+
       container.innerHTML = data.map(item => `
-        <div class="border-l-4 border-[#00382B] bg-gray-50 p-4 rounded shadow-sm">
-          <h3 class="font-bold text-lg text-[#00382B]">${item.title}</h3>
-          ${item.composer ? `<p class="text-sm font-semibold text-gray-700">Komponist: ${item.composer}</p>` : ''}
-          ${(item.notes || item.description) ? `<p class="text-xs text-gray-500 mt-1">${item.notes || item.description}</p>` : ''}
+        <div class="border-l-4 border-[#00382B] bg-white p-5 rounded-lg shadow-sm space-y-1">
+          <h3 class="font-bold text-xl text-[#00382B]">${item.title}</h3>
+          <div class="text-sm font-medium text-gray-700 space-x-3">
+            ${item.composer ? `<span><strong>Komponist:</strong> ${item.composer}</span>` : ''}
+            ${item.arranger ? `<span><strong>Arrangeur:</strong> ${item.arranger}</span>` : ''}
+          </div>
+          ${(item.notes || item.description) ? `<p class="text-xs text-gray-500 pt-1">${item.notes || item.description}</p>` : ''}
         </div>
       `).join('');
     }
@@ -585,9 +659,9 @@
         if (type === 'applications') {
           cleanData = rawData.map(item => ({ Name: item.name || '', Verein: item.music_association_name || '', Instrument: item.instrument || '', Email: item.email || '', Telefon: item.phone || '', Geburtsdatum: item.birth_date || '' }));
         } else if (type === 'appointments') {
-          cleanData = rawData.map(item => ({ Typ: item.type || '', Ort: item.location || '', Datum: item.date || '', Uhrzeit: item.time || '', Anmerkung: item.notes || '' }));
+          cleanData = rawData.map(item => ({ Typ: item.type || '', Ort: item.location || '', Datum: formatDateGerman(item.date), Uhrzeit: item.time || '', Anmerkung: item.notes || '' }));
         } else {
-          cleanData = rawData.map(item => ({ Titel: item.title || '', Komponist: item.composer || '', Details: item.notes || item.description || '' }));
+          cleanData = rawData.map(item => ({ Titel: item.title || '', Komponist: item.composer || '', Arrangeur: item.arranger || '', Details: item.notes || item.description || '' }));
         }
 
         doc.autoTable({
