@@ -24,6 +24,7 @@
         <button onclick="showSection('home')" class="hover:text-[#C59B27] px-3 py-1 rounded transition">Startseite</button>
         <button onclick="showSection('anmeldung')" class="bg-[#C59B27] hover:bg-yellow-600 text-gray-900 font-bold px-3 py-1 rounded shadow transition">Anmeldung</button>
         <button onclick="showSection('termine')" class="hover:text-[#C59B27] px-3 py-1 rounded transition">Termine</button>
+        <button onclick="showSection('programm')" class="hover:text-[#C59B27] px-3 py-1 rounded transition">Programm</button>
         <button onclick="showSection('admin')" class="hover:text-gray-300 text-xs px-2 py-1 border border-gray-600 rounded">Admin</button>
       </nav>
     </div>
@@ -46,8 +47,8 @@
         <!-- Dynamic Save the Date Banner -->
         <div id="save-the-date-banner" class="hidden bg-[#00382B] text-white p-6 rounded-lg text-center shadow-inner my-6">
           <p class="text-xs uppercase tracking-widest text-[#C59B27] font-semibold">Save the Date!</p>
-          <p class="text-2xl font-bold mt-1">Freitag, 12. Februar 2027</p>
-          <p class="text-md text-gray-200">Koralmhalle Deutschlandsberg</p>
+          <p id="banner-date-text" class="text-2xl font-bold mt-1">Freitag, 12. Februar 2027</p>
+          <p id="banner-[#00382B]-location-text" class="text-md text-gray-200">Koralmhalle Deutschlandsberg</p>
         </div>
 
         <div class="bg-emerald-50 border-l-4 border-[#00382B] p-4 my-4 rounded">
@@ -150,7 +151,7 @@
           <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
               <label class="block text-sm font-semibold text-gray-700 mb-1" for="instrument">Hauptinstrument *</label>
-              <input type="text" id="instrument" placeholder="z. B. Klarinette, Trompete, Schlagzeug" required class="w-full border border-gray-300 p-2.5 rounded focus:ring-2 focus:ring-[#00382B] focus:outline-none">
+              <input type="text" id="instrument" placeholder="z. B. Klarinette, Trompete" required class="w-full border border-gray-300 p-2.5 rounded focus:ring-2 focus:ring-[#00382B] focus:outline-none">
             </div>
             <div>
               <label class="block text-sm font-semibold text-gray-700 mb-1" for="second_instrument">Zweitinstrument (optional)</label>
@@ -163,15 +164,15 @@
               <label class="block text-sm font-semibold text-gray-700 mb-1" for="badge">Leistungsabzeichen</label>
               <select id="badge" class="w-full border border-gray-300 p-2.5 rounded focus:ring-2 focus:ring-[#00382B] focus:outline-none">
                 <option value="">Keines / Noch nicht absolviert</option>
-                <option value="Junior">Junior-Abzeichen</option>
-                <option value="Bronze">Bronze (JLA)</option>
-                <option value="Silber">Silber (JLA)</option>
-                <option value="Gold">Gold (MLA)</option>
+                <option value="Junior">Junior</option>
+                <option value="Bronze">Bronze</option>
+                <option value="Silber">Silber</option>
+                <option value="Gold">Gold</option>
               </select>
             </div>
             <div>
               <label class="block text-sm font-semibold text-gray-700 mb-1" for="notes">Anmerkungen / Wünsche</label>
-              <input type="text" id="notes" placeholder="z. B. Allergien, Mitfahrgelegenheit" class="w-full border border-gray-300 p-2.5 rounded focus:ring-2 focus:ring-[#00382B] focus:outline-none">
+              <input type="text" id="notes" placeholder="z. B. Mitfahrgelegenheit" class="w-full border border-gray-300 p-2.5 rounded focus:ring-2 focus:ring-[#00382B] focus:outline-none">
             </div>
           </div>
 
@@ -194,6 +195,16 @@
       </div>
     </section>
 
+    <!-- Section: Programm -->
+    <section id="section-programm" class="hidden space-y-6">
+      <div class="bg-white p-6 sm:p-8 rounded-lg shadow-md border-t-4 border-[#00382B]">
+        <h2 class="text-2xl font-bold text-[#00382B] mb-4">Konzertprogramm</h2>
+        <div id="programm-list" class="space-y-4">
+          <!-- Dynamisch befüllt -->
+        </div>
+      </div>
+    </section>
+
     <!-- Section: Admin -->
     <section id="section-admin" class="hidden space-y-6">
       <!-- Login Box -->
@@ -202,7 +213,7 @@
         <form id="adminLoginForm" class="space-y-4">
           <div>
             <label class="block text-sm font-semibold text-gray-700 mb-1">E-Mail oder Benutzername</label>
-            <input type="text" id="adminEmail" required placeholder="admin" class="w-full border border-gray-300 p-2.5 rounded focus:ring-2 focus:ring-[#00382B] focus:outline-none">
+            <input type="text" id="adminEmail" required placeholder="admin@bezirk.local" class="w-full border border-gray-300 p-2.5 rounded focus:ring-2 focus:ring-[#00382B] focus:outline-none">
           </div>
           <div>
             <label class="block text-sm font-semibold text-gray-700 mb-1">Passwort</label>
@@ -217,29 +228,98 @@
       <!-- Dashboard Box -->
       <div id="admin-dashboard" class="hidden space-y-6">
         
-        <!-- Einstellungen Box -->
+        <div class="flex justify-between items-center bg-white p-4 rounded-lg shadow border">
+          <h2 class="text-2xl font-bold text-[#00382B]">Admin Dashboard</h2>
+          <button onclick="logoutAdmin()" class="bg-red-600 hover:bg-red-700 text-white text-xs px-3 py-2 rounded transition font-semibold">
+            Abmelden
+          </button>
+        </div>
+
+        <!-- Website Einstellungen -->
         <div class="bg-white p-6 rounded-lg shadow-md border-t-4 border-[#00382B]">
           <h3 class="text-lg font-bold text-[#00382B] mb-3">Website Einstellungen</h3>
-          <div class="flex items-center justify-between p-3 bg-gray-50 rounded border">
-            <div>
-              <p class="font-semibold text-sm">"Save the Date"-Banner auf der Startseite anzeigen</p>
-              <p class="text-xs text-gray-500">Blendet den Grußkasten mit Datum und Ort auf der Homepage ein/aus.</p>
+          <div class="space-y-4">
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between p-3 bg-gray-50 rounded border gap-4">
+              <div>
+                <p class="font-semibold text-sm">"Save the Date"-Banner auf der Startseite anzeigen</p>
+                <p class="text-xs text-gray-500">Blendet den Grußkasten mit Datum und Ort auf der Homepage ein/aus.</p>
+              </div>
+              <button id="toggleBannerBtn" onclick="toggleSaveTheDateBanner()" class="px-4 py-2 text-xs font-bold rounded transition bg-emerald-700 text-white">
+                Lade Status...
+              </button>
             </div>
-            <button id="toggleBannerBtn" onclick="toggleSaveTheDateBanner()" class="px-4 py-2 text-xs font-bold rounded transition bg-emerald-700 text-white">
-              Lade Status...
-            </button>
+
+            <div class="p-3 bg-gray-50 rounded border space-y-2">
+              <p class="font-semibold text-sm">Banner-Text anpassen</p>
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                <input type="text" id="admin-banner-date" placeholder="Datum (z.B. Freitag, 12. Februar 2027)" class="border p-2 text-xs rounded">
+                <input type="text" id="admin-banner-location" placeholder="Ort (z.B. Koralmhalle Deutschlandsberg)" class="border p-2 text-xs rounded">
+              </div>
+              <button onclick="saveBannerText()" class="bg-[#00382B] text-white text-xs px-3 py-1.5 rounded font-bold">Banner-Text Speichern</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Termine Verwalten (CRUD) -->
+        <div class="bg-white p-6 rounded-lg shadow-md border-t-4 border-[#00382B]">
+          <h3 class="text-lg font-bold text-[#00382B] mb-3">Termine verwalten</h3>
+          <form id="addAppointmentForm" class="grid grid-cols-1 sm:grid-cols-4 gap-2 mb-4 bg-gray-50 p-3 rounded border">
+            <input type="text" id="app-type" placeholder="Typ (z.B. Probe, Konzert)" required class="border p-2 text-xs rounded">
+            <input type="text" id="app-location" placeholder="Ort" required class="border p-2 text-xs rounded">
+            <input type="date" id="app-date" required class="border p-2 text-xs rounded">
+            <input type="time" id="app-time" class="border p-2 text-xs rounded">
+            <input type="text" id="app-notes" placeholder="Anmerkung / Details" class="border p-2 text-xs rounded sm:col-span-3">
+            <button type="submit" class="bg-[#00382B] text-white font-bold text-xs p-2 rounded hover:bg-emerald-900">Termin Hinzufügen</button>
+          </form>
+
+          <div class="overflow-x-auto">
+            <table class="w-full text-left text-sm text-gray-600 border">
+              <thead class="bg-gray-100 uppercase text-xs">
+                <tr>
+                  <th class="p-2">Typ</th>
+                  <th class="p-2">Ort</th>
+                  <th class="p-2">Datum</th>
+                  <th class="p-2">Uhrzeit</th>
+                  <th class="p-2">Aktion</th>
+                </tr>
+              </thead>
+              <tbody id="admin-appointments-table">
+                <!-- Dynamisch -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- Programm Verwalten (CRUD) -->
+        <div class="bg-white p-6 rounded-lg shadow-md border-t-4 border-[#00382B]">
+          <h3 class="text-lg font-bold text-[#00382B] mb-3">Konzertprogramm verwalten</h3>
+          <form id="addProgramForm" class="grid grid-cols-1 sm:grid-cols-3 gap-2 mb-4 bg-gray-50 p-3 rounded border">
+            <input type="text" id="prog-title" placeholder="Stücktitel" required class="border p-2 text-xs rounded">
+            <input type="text" id="prog-composer" placeholder="Komponist / Arrangeur" class="border p-2 text-xs rounded">
+            <input type="text" id="prog-notes" placeholder="Details (z.B. Solist)" class="border p-2 text-xs rounded">
+            <button type="submit" class="bg-[#00382B] text-white font-bold text-xs p-2 rounded hover:bg-emerald-900 sm:col-span-3">Stück Hinzufügen</button>
+          </form>
+
+          <div class="overflow-x-auto">
+            <table class="w-full text-left text-sm text-gray-600 border">
+              <thead class="bg-gray-100 uppercase text-xs">
+                <tr>
+                  <th class="p-2">Titel</th>
+                  <th class="p-2">Komponist</th>
+                  <th class="p-2">Anmerkung</th>
+                  <th class="p-2">Aktion</th>
+                </tr>
+              </thead>
+              <tbody id="admin-program-table">
+                <!-- Dynamisch -->
+              </tbody>
+            </table>
           </div>
         </div>
 
         <!-- Anmeldungen Tabelle -->
         <div class="bg-white p-6 rounded-lg shadow-md border-t-4 border-[#C59B27]">
-          <div class="flex justify-between items-center mb-6">
-            <h2 class="text-2xl font-bold text-[#00382B]">Eingegangene Anmeldungen</h2>
-            <button onclick="logoutAdmin()" class="bg-red-600 hover:bg-red-700 text-white text-xs px-3 py-1.5 rounded transition">
-              Abmelden
-            </button>
-          </div>
-
+          <h3 class="text-lg font-bold text-[#00382B] mb-3">Eingegangene Anmeldungen</h3>
           <div class="overflow-x-auto">
             <table class="w-full text-left text-sm text-gray-600">
               <thead class="bg-gray-100 text-gray-700 uppercase text-xs">
@@ -250,6 +330,7 @@
                   <th class="p-3">E-Mail</th>
                   <th class="p-3">Telefon</th>
                   <th class="p-3">Datum</th>
+                  <th class="p-3">Aktion</th>
                 </tr>
               </thead>
               <tbody id="applications-table-body">
@@ -274,67 +355,65 @@
   <!-- App Script -->
   <script>
     const SUPABASE_URL = 'https://lrxwxkpcubgxzjjvlwmh.supabase.co';
-const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImxyeHd4a3BjdWJneHpqanZsd21oIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODk3MDUyMzMsImV4cCI6MjEwNTI4MTIzM30.M_H-ZkHlhM7S73f47Dw5341OjgtTRrJIHhDMuWkRNWc';
+    const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImxyeHd4a3BjdWJneHpqanZsd21oIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODk3MDUyMzMsImV4cCI6MjEwNTI4MTIzM30.M_H-ZkHlhM7S73f47Dw5341OjgtTRrJIHhDMuWkRNWc';
 
-const supabaseClient = window.supabase ? window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY) : null;
+    const supabaseClient = window.supabase ? window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY) : null;
 
     let showSaveTheDate = true;
 
-    // Beim Laden Konfiguration prüfen
     document.addEventListener('DOMContentLoaded', () => {
       loadBannerConfig();
     });
 
     async function loadBannerConfig() {
       if (!supabaseClient) return;
-      const { data } = await supabaseClient
-        .from('site_config')
-        .select('value')
-        .eq('key', 'show_save_the_date')
-        .single();
+      const { data } = await supabaseClient.from('site_config').select('*');
 
-      if (data && data.value !== null) {
-        showSaveTheDate = (data.value === true || data.value === 'true');
+      if (data) {
+        const showItem = data.find(i => i.key === 'show_save_the_date');
+        const dateItem = data.find(i => i.key === 'save_the_date_text');
+        const locItem = data.find(i => i.key === 'save_the_date_location');
+
+        if (showItem) showSaveTheDate = (showItem.value === true || showItem.value === 'true');
+        if (dateItem) document.getElementById('banner-date-text').innerText = dateItem.value;
+        if (locItem) document.getElementById('banner-[#00382B]-location-text').innerText = locItem.value;
       }
 
       const banner = document.getElementById('save-the-date-banner');
-      if (showSaveTheDate) {
-        banner.classList.remove('hidden');
-      } else {
-        banner.classList.add('hidden');
-      }
+      if (showSaveTheDate) banner.classList.remove('hidden');
+      else banner.classList.add('hidden');
 
       updateAdminBannerButton();
     }
 
     async function toggleSaveTheDateBanner() {
       showSaveTheDate = !showSaveTheDate;
+      await supabaseClient.from('site_config').upsert({ key: 'show_save_the_date', value: showSaveTheDate });
+      loadBannerConfig();
+    }
 
-      const { error } = await supabaseClient
-        .from('site_config')
-        .upsert({ key: 'show_save_the_date', value: showSaveTheDate });
+    async function saveBannerText() {
+      const dateVal = document.getElementById('admin-banner-date').value;
+      const locVal = document.getElementById('admin-banner-location').value;
 
-      if (error) {
-        alert('Fehler beim Aktualisieren: ' + error.message);
-      } else {
-        loadBannerConfig();
-      }
+      if (dateVal) await supabaseClient.from('site_config').upsert({ key: 'save_the_date_text', value: dateVal });
+      if (locVal) await supabaseClient.from('site_config').upsert({ key: 'save_the_date_location', value: locVal });
+
+      alert('Banner-Daten gespeichert!');
+      loadBannerConfig();
     }
 
     function updateAdminBannerButton() {
       const btn = document.getElementById('toggleBannerBtn');
       if (!btn) return;
-      if (showSaveTheDate) {
-        btn.innerText = 'Sichtbar (Klicken zum Ausblenden)';
-        btn.className = 'px-4 py-2 text-xs font-bold rounded transition bg-emerald-700 text-white hover:bg-emerald-800';
-      } else {
-        btn.innerText = 'Ausgeblendet (Klicken zum Einblenden)';
-        btn.className = 'px-4 py-2 text-xs font-bold rounded transition bg-gray-400 text-white hover:bg-gray-500';
-      }
+      btn.innerText = showSaveTheDate ? 'Sichtbar (Klicken zum Ausblenden)' : 'Ausgeblendet (Klicken zum Einblenden)';
+      btn.className = showSaveTheDate 
+        ? 'px-4 py-2 text-xs font-bold rounded transition bg-emerald-700 text-white hover:bg-emerald-800'
+        : 'px-4 py-2 text-xs font-bold rounded transition bg-gray-400 text-white hover:bg-gray-500';
     }
 
     function showSection(sectionId) {
-      ['home', 'anmeldung', 'termine', 'admin'].forEach(id => {
+      ['home', 'anmeldung', 'termine', 'programm', 'admin'].forEach(id => {
         document.getElementById('section-' + id).classList.add('hidden');
       });
       document.getElementById('section-' + sectionId).classList.remove('hidden');
@@ -342,6 +421,7 @@ const supabaseClient = window.supabase ? window.supabase.createClient(SUPABASE_U
 
       if (sectionId === 'home') loadBannerConfig();
       if (sectionId === 'termine') loadTermine();
+      if (sectionId === 'programm') loadProgramm();
       if (sectionId === 'admin') checkAdminSession();
     }
 
@@ -350,24 +430,10 @@ const supabaseClient = window.supabase ? window.supabase.createClient(SUPABASE_U
       const container = document.getElementById('termine-list');
       container.innerHTML = '<p class="text-gray-500 italic">Termine werden geladen...</p>';
 
-      const { data, error } = await supabaseClient
-        .from('appointments')
-        .select('*')
-        .order('date', { ascending: true });
+      const { data } = await supabaseClient.from('appointments').select('*').order('date', { ascending: true });
 
-      if (error || !data || data.length === 0) {
-        container.innerHTML = `
-          <div class="border-l-4 border-[#C59B27] bg-gray-50 p-4 rounded shadow-sm flex flex-col md:flex-row justify-between md:items-center gap-2">
-            <div>
-              <span class="text-xs font-bold uppercase tracking-wider text-[#00382B] bg-emerald-100 px-2 py-0.5 rounded">Benefizkonzert</span>
-              <h3 class="font-bold text-lg mt-1">Koralmhalle Deutschlandsberg</h3>
-              <p class="text-sm text-gray-600">Bezirksorchester Deutschlandsberg</p>
-            </div>
-            <div class="text-right text-sm font-semibold text-gray-700">
-              <div>📅 Freitag, 12. Februar 2027</div>
-            </div>
-          </div>
-        `;
+      if (!data || data.length === 0) {
+        container.innerHTML = '<p class="text-gray-500 italic">Derzeit sind keine Proben- oder Konzerttermine eingetragen.</p>';
         return;
       }
 
@@ -380,16 +446,118 @@ const supabaseClient = window.supabase ? window.supabase.createClient(SUPABASE_U
           </div>
           <div class="text-right text-sm font-semibold text-gray-700">
             <div>📅 ${item.date}</div>
-            <div>⏰ ${item.time || ''} Uhr</div>
+            ${item.time ? `<div>⏰ ${item.time} Uhr</div>` : ''}
           </div>
         </div>
       `).join('');
     }
 
+    async function loadProgramm() {
+      if (!supabaseClient) return;
+      const container = document.getElementById('programm-list');
+      container.innerHTML = '<p class="text-gray-500 italic">Programm wird geladen...</p>';
+
+      const { data } = await supabaseClient.from('program_items').select('*').order('created_at', { ascending: true });
+
+      if (!data || data.length === 0) {
+        container.innerHTML = '<p class="text-gray-500 italic">Das Programm wird in Kürze bekanntgegeben.</p>';
+        return;
+      }
+
+      container.innerHTML = data.map(item => `
+        <div class="border-l-4 border-[#00382B] bg-gray-50 p-4 rounded shadow-sm">
+          <h3 class="font-bold text-lg text-[#00382B]">${item.title}</h3>
+          ${item.composer ? `<p class="text-sm font-semibold text-gray-700">Komponist: ${item.composer}</p>` : ''}
+          ${item.notes ? `<p class="text-xs text-gray-500 mt-1">${item.notes}</p>` : ''}
+        </div>
+      `).join('');
+    }
+
+    // CRUD Termine & Programm im Admin
+    document.getElementById('addAppointmentForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const payload = {
+        type: document.getElementById('app-type').value,
+        location: document.getElementById('app-location').value,
+        date: document.getElementById('app-date').value,
+        time: document.getElementById('app-time').value || null,
+        notes: document.getElementById('app-notes').value || null
+      };
+      await supabaseClient.from('appointments').insert([payload]);
+      document.getElementById('addAppointmentForm').reset();
+      loadAdminAppointments();
+    });
+
+    async function loadAdminAppointments() {
+      const tbody = document.getElementById('admin-appointments-table');
+      const { data } = await supabaseClient.from('appointments').select('*').order('date', { ascending: true });
+      if (!data || data.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="5" class="p-2 text-center text-gray-400">Keine Termine angelegt.</td></tr>';
+        return;
+      }
+      tbody.innerHTML = data.map(i => `
+        <tr class="border-b">
+          <td class="p-2">${i.type}</td>
+          <td class="p-2">${i.location}</td>
+          <td class="p-2">${i.date}</td>
+          <td class="p-2">${i.time || '-'}</td>
+          <td class="p-2"><button onclick="deleteAppointment('${i.id}')" class="text-red-600 font-bold hover:underline text-xs">Löschen</button></td>
+        </tr>
+      `).join('');
+    }
+
+    async function deleteAppointment(id) {
+      if (confirm('Termin wirklich löschen?')) {
+        await supabaseClient.from('appointments').delete().eq('id', id);
+        loadAdminAppointments();
+      }
+    }
+
+    document.getElementById('addProgramForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const payload = {
+        title: document.getElementById('prog-title').value,
+        composer: document.getElementById('prog-composer').value || null,
+        notes: document.getElementById('prog-notes').value || null
+      };
+      await supabaseClient.from('program_items').insert([payload]);
+      document.getElementById('addProgramForm').reset();
+      loadAdminProgram();
+    });
+
+    async function loadAdminProgram() {
+      const tbody = document.getElementById('admin-program-table');
+      const { data } = await supabaseClient.from('program_items').select('*').order('created_at', { ascending: true });
+      if (!data || data.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="4" class="p-2 text-center text-gray-400">Keine Stücke eingetragen.</td></tr>';
+        return;
+      }
+      tbody.innerHTML = data.map(i => `
+        <tr class="border-b">
+          <td class="p-2 font-semibold">${i.title}</td>
+          <td class="p-2">${i.composer || '-'}</td>
+          <td class="p-2">${i.notes || '-'}</td>
+          <td class="p-2"><button onclick="deleteProgramItem('${i.id}')" class="text-red-600 font-bold hover:underline text-xs">Löschen</button></td>
+        </tr>
+      `).join('');
+    }
+
+    async function deleteProgramItem(id) {
+      if (confirm('Stück wirklich löschen?')) {
+        await supabaseClient.from('program_items').delete().eq('id', id);
+        loadAdminProgram();
+      }
+    }
+
+    async function deleteApplication(id) {
+      if (confirm('Anmeldung wirklich löschen?')) {
+        await supabaseClient.from('applications').delete().eq('id', id);
+        loadApplications();
+      }
+    }
+
     document.getElementById('regForm').addEventListener('submit', async (e) => {
       e.preventDefault();
-      if (!supabaseClient) return alert('Supabase konnte nicht geladen werden.');
-
       const btn = document.getElementById('submitBtn');
       btn.innerText = 'Wird gesendet...';
       btn.disabled = true;
@@ -397,14 +565,13 @@ const supabaseClient = window.supabase ? window.supabase.createClient(SUPABASE_U
       const vereinRaw = document.getElementById('verein').value.split('|');
 
       try {
-        const { data: years } = await supabaseClient
+        const { data: yearData } = await supabaseClient
           .from('project_years')
           .select('id')
           .eq('is_active', true)
           .maybeSingle();
 
         const payload = {
-          project_year_id: years ? years.id : null,
           name: document.getElementById('name').value,
           birth_date: document.getElementById('birth_date').value,
           phone: document.getElementById('phone').value,
@@ -416,6 +583,8 @@ const supabaseClient = window.supabase ? window.supabase.createClient(SUPABASE_U
           performance_badge: document.getElementById('badge').value || null,
           notes: document.getElementById('notes').value || null
         };
+
+        if (yearData && yearData.id) payload.project_year_id = yearData.id;
 
         const { error } = await supabaseClient.from('applications').insert([payload]);
 
@@ -441,6 +610,8 @@ const supabaseClient = window.supabase ? window.supabase.createClient(SUPABASE_U
         document.getElementById('admin-login-box').classList.add('hidden');
         document.getElementById('admin-dashboard').classList.remove('hidden');
         loadApplications();
+        loadAdminAppointments();
+        loadAdminProgram();
         updateAdminBannerButton();
       } else {
         document.getElementById('admin-login-box').classList.remove('hidden');
@@ -450,8 +621,6 @@ const supabaseClient = window.supabase ? window.supabase.createClient(SUPABASE_U
 
     document.getElementById('adminLoginForm').addEventListener('submit', async (e) => {
       e.preventDefault();
-      if (!supabaseClient) return alert('Supabase Client nicht verfügbar.');
-
       const usernameInput = document.getElementById('adminEmail').value.trim();
       const password = document.getElementById('adminPassword').value;
       const btn = document.getElementById('adminLoginBtn');
@@ -462,18 +631,9 @@ const supabaseClient = window.supabase ? window.supabase.createClient(SUPABASE_U
       btn.disabled = true;
 
       try {
-        const { data, error } = await supabaseClient.auth.signInWithPassword({
-          email: email,
-          password: password
-        });
-
-        if (error) {
-          alert('Login fehlgeschlagen: ' + error.message);
-        } else {
-          checkAdminSession();
-        }
-      } catch (err) {
-        alert('Unerwarteter Fehler: ' + err.message);
+        const { error } = await supabaseClient.auth.signInWithPassword({ email, password });
+        if (error) alert('Login fehlgeschlagen: ' + error.message);
+        else checkAdminSession();
       } finally {
         btn.innerText = 'Einloggen';
         btn.disabled = false;
@@ -487,37 +647,24 @@ const supabaseClient = window.supabase ? window.supabase.createClient(SUPABASE_U
 
     async function loadApplications() {
       const tbody = document.getElementById('applications-table-body');
-      if (!supabaseClient) return;
+      const { data, error } = await supabaseClient.from('applications').select('*').order('created_at', { ascending: false });
 
-      try {
-        const { data, error } = await supabaseClient
-          .from('applications')
-          .select('*')
-          .order('created_at', { ascending: false });
-
-        if (error) {
-          tbody.innerHTML = `<tr><td colspan="6" class="p-4 text-center text-red-500">Fehler beim Laden: ${error.message}</td></tr>`;
-          return;
-        }
-
-        if (!data || data.length === 0) {
-          tbody.innerHTML = '<tr><td colspan="6" class="p-4 text-center text-gray-500">Keine Anmeldungen vorhanden.</td></tr>';
-          return;
-        }
-
-        tbody.innerHTML = data.map(app => `
-          <tr class="border-b hover:bg-gray-50">
-            <td class="p-3 font-semibold">${app.name}</td>
-            <td class="p-3">${app.music_association_name || ''}</td>
-            <td class="p-3">${app.instrument || ''}</td>
-            <td class="p-3">${app.email || ''}</td>
-            <td class="p-3">${app.phone || ''}</td>
-            <td class="p-3 text-xs text-gray-500">${app.created_at ? new Date(app.created_at).toLocaleDateString('de-AT') : '-'}</td>
-          </tr>
-        `).join('');
-      } catch (err) {
-        tbody.innerHTML = '<tr><td colspan="6" class="p-4 text-center text-red-500">Unerwarteter Fehler beim Laden.</td></tr>';
+      if (error || !data || data.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="7" class="p-4 text-center text-gray-500">Keine Anmeldungen vorhanden.</td></tr>';
+        return;
       }
+
+      tbody.innerHTML = data.map(app => `
+        <tr class="border-b hover:bg-gray-50">
+          <td class="p-3 font-semibold">${app.name}</td>
+          <td class="p-3">${app.music_association_name || ''}</td>
+          <td class="p-3">${app.instrument || ''}</td>
+          <td class="p-3">${app.email || ''}</td>
+          <td class="p-3">${app.phone || ''}</td>
+          <td class="p-3 text-xs text-gray-500">${app.created_at ? new Date(app.created_at).toLocaleDateString('de-AT') : '-'}</td>
+          <td class="p-3"><button onclick="deleteApplication('${app.id}')" class="text-red-600 font-bold hover:underline text-xs">Löschen</button></td>
+        </tr>
+      `).join('');
     }
   </script>
 </body>
