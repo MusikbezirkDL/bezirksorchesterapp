@@ -87,7 +87,7 @@
             <label class="block text-sm font-semibold text-gray-700 mb-1">Musikverein / Stammkapelle *</label>
             <select id="verein" required class="w-full border p-2.5 rounded bg-white">
               <option value="">-- Bitte wählen --</option>
-              <option value="ST-04-001">ST-04-001 Musikverein Marktmusikkapelle Bad Gams</option>
+              <option value="ST-04-001">ST-04-001Musikverein Marktmusikkapelle Bad Gams</option>
               <option value="ST-04-002">ST-04-002 Musikverein Stadtkapelle Deutschlandsberg</option>
               <option value="ST-04-003">ST-04-003 MV Marktmusikkapelle Eibiswald</option>
               <option value="ST-04-004">ST-04-004 Musikverein Marktkapelle Frauental</option>
@@ -482,7 +482,7 @@
         </tr>
       `).join('');
 
-      // Programm mit Projektjahr-Anzeige
+      // Programm
       document.getElementById('admin-program-table').innerHTML = globalData.program.map(i => {
         const compArr = [i.composer ? `K: ${i.composer}` : '', i.arranger ? `A: ${i.arranger}` : ''].filter(Boolean).join(' / ') || '-';
         return `
@@ -496,7 +496,7 @@
         `;
       }).join('');
 
-      // Anmeldungen mit Projektjahr-Filterung & -Anzeige
+      // Anmeldungen
       const filterYearId = document.getElementById('filter-admin-app-year')?.value;
       const filteredApps = filterYearId ? globalData.applications.filter(a => a.project_year_id === filterYearId) : globalData.applications;
 
@@ -573,7 +573,8 @@
         e.preventDefault();
         const vereinSelect = document.getElementById('verein');
         const selectedCode = vereinSelect.value;
-        const selectedName = vereinSelect.options[vereinSelect.selectedIndex].text;
+        const selectedFullText = vereinSelect.options[vereinSelect.selectedIndex].text;
+        const selectedName = selectedFullText.replace(/^ST-04-\d{3}\s*/, '');
 
         const payload = {
           name: document.getElementById('name').value,
@@ -660,7 +661,6 @@
       }
     }
 
-    // Termine Ansicht für User (Typ/Ort groß, Bemerkung klein)
     async function loadTermine() {
       const container = document.getElementById('termine-list');
       const selectedYearId = document.getElementById('filter-termine-year')?.value || activeProjectYear?.id;
@@ -693,7 +693,6 @@
       `).join('');
     }
 
-    // Programm Ansicht für User
     async function loadProgramm() {
       const container = document.getElementById('programm-list');
       const selectedYearId = document.getElementById('filter-programm-year')?.value || activeProjectYear?.id;
