@@ -476,49 +476,39 @@
     // --- TERMIN HINZUFÜGEN ---
     document.getElementById('addAppointmentForm').addEventListener('submit', async (e) => {
       e.preventDefault();
-      const payload = {
-        type: document.getElementById('app-type').value,
-        location: document.getElementById('app-location').value,
-        date: document.getElementById('app-date').value,
-        time: document.getElementById('app-time').value || null,
-        notes: document.getElementById('app-notes').value || null
-      };
 
-      const { error } = await supabaseClient.from('appointments').insert([payload]);
-      if (error) {
-        alert('Fehler beim Erstellen des Termins: ' + error.message);
-      } else {
-        document.getElementById('addAppointmentForm').reset();
-        await loadAdminAppointments();
-        await loadTermine();
+      try {
+        // Aktives Projektjahr ermitteln (falls für Termine ebenfalls erforderlich)
+        const { data: yearData } = await supabaseClient
+          .from('project_years')
+          .select('id')
+          .eq('is_active', true)
+          .maybeSingle();
+
+        const payload = {
+          type: document.getElementById('app-type').value,
+          location: document.getElementById('app-location').value,
+          date: document.getElementById('app-date').value,
+          time: document.getElementById('app-time').value || null,
+          notes: document.getElementById('app-notes').value || null
+        };
+
+        if (yearData && yearData.id) {
+          payload.project_year_id = yearData.id;
+        }
+
+        const { error } = await supabaseClient.from('appointments').insert([payload]);
+        if (error) {
+          alert('Fehler beim Erstellen des Termins: ' + error.message);
+        } else {
+          document.getElementById('addAppointmentForm').reset();
+          await loadAdminAppointments();
+          await loadTermine();
+        }
+      } catch (err) {
+        alert('Unerwarteter Fehler: ' + err.message);
       }
     });
-
-    async function loadAdminAppointments() {
-      const tbody = document.getElementById('admin-appointments-table');
-      const { data } = await supabaseClient.from('appointments').select('*').order('date', { ascending: true });
-      if (!data || data.length === 0) {
-        tbody.innerHTML = '<tr><td colspan="5" class="p-2 text-center text-gray-400">Keine Termine angelegt.</td></tr>';
-        return;
-      }
-      tbody.innerHTML = data.map(i => `
-        <tr class="border-b">
-          <td class="p-2">${i.type}</td>
-          <td class="p-2">${i.location}</td>
-          <td class="p-2">${i.date}</td>
-          <td class="p-2">${i.time || '-'}</td>
-          <td class="p-2"><button onclick="deleteAppointment('${i.id}')" class="text-red-600 font-bold hover:underline text-xs">Löschen</button></td>
-        </tr>
-      `).join('');
-    }
-
-    async function deleteAppointment(id) {
-      if (confirm('Termin wirklich löschen?')) {
-        await supabaseClient.from('appointments').delete().eq('id', id);
-        loadAdminAppointments();
-        loadTermine();
-      }
-    }
 
     // --- PROGRAMM HINZUFÜGEN ---
     document.getElementById('addProgramForm').addEventListener('submit', async (e) => {
