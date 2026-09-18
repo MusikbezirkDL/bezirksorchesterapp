@@ -122,7 +122,7 @@
       <div id="admin-login-box" class="max-w-md mx-auto bg-white p-6 rounded-lg shadow-md border">
         <h2 class="text-xl font-bold text-[#00382B] mb-4">Admin Login</h2>
         <form id="adminLoginForm" class="space-y-4">
-          <input type="text" id="adminEmail" placeholder="E-Mail" required class="w-full border p-2.5 rounded">
+          <input type="text" id="adminEmail" placeholder="E-Mail oder Benutzername" required class="w-full border p-2.5 rounded">
           <input type="password" id="adminPassword" placeholder="Passwort" required class="w-full border p-2.5 rounded">
           <button type="submit" class="w-full bg-[#00382B] text-white font-bold py-2.5 rounded">Einloggen</button>
         </form>
@@ -136,7 +136,7 @@
 
         <!-- Projektjahre verwalten -->
         <div class="bg-white p-6 rounded-lg shadow-md border-t-4 border-amber-600">
-          <h3 class="text-lg font-bold text-[#00382B] mb-4">Projektjahre verwalten & abschließen</h3>
+          <h3 class="text-lg font-bold text-[#00382B] mb-4">Projektjahre verwalten</h3>
           <form id="addProjectYearForm" class="flex flex-col sm:flex-row gap-2 mb-4 bg-amber-50 p-3 rounded border border-amber-200">
             <input type="text" id="py-label" placeholder="Bezeichnung (z. B. 2026/2027)" required class="border p-2 text-xs rounded flex-grow">
             <label class="flex items-center gap-1 text-xs font-semibold px-2">
@@ -244,27 +244,56 @@
     let globalData = { appointments: [], program: [], applications: [], projectYears: [] };
     let activeProjectYear = null;
 
-    document.addEventListener('DOMContentLoaded', () => { loadProjectYears(); });
+    document.addEventListener('DOMContentLoaded', () => { 
+      loadProjectYears(); 
+      setupFormListeners();
+    });
+
+    function showSection(sectionId) {
+      const sections = ['home', 'anmeldung', 'termine', 'programm', 'admin'];
+      sections.forEach(id => {
+        const el = document.getElementById('section-' + id);
+        if (el) el.classList.add('hidden');
+      });
+
+      const target = document.getElementById('section-' + sectionId);
+      if (target) target.classList.remove('hidden');
+
+      window.scrollTo(0, 0);
+
+      if (sectionId === 'termine') loadTermine();
+      if (sectionId === 'programm') loadProgramm();
+      if (sectionId === 'admin') checkAdminSession();
+    }
 
     async function loadProjectYears() {
       if (!supabaseClient) return;
-      const { data } = await supabaseClient.from('project_years').select('*').order('created_at', { ascending: false });
-      if (data) {
-        globalData.projectYears = data;
-        activeProjectYear = data.find(y => y.is_active === true) || null;
-
-        const msgEl = document.getElementById('no-active-project-msg');
-        if (!activeProjectYear && msgEl) msgEl.classList.remove('hidden');
-        else if (msgEl) msgEl.classList.add('hidden');
-
-        const options = data.map(y => `<option value="${y.id}" ${y.is_active ? 'selected' : ''}>${y.year_label || y.year || 'Projektjahr'} ${y.is_active ? '(Aktiv)' : '(Abgeschlossen)'}</option>`).join('');
-        ['reg-project-year', 'app-project-year', 'prog-project-year'].forEach(id => {
-          const el = document.getElementById(id);
-          if (el) el.innerHTML = options;
-        });
-
-        renderProjectYearsTable();
+      const { data, error } = await supabaseClient.from('project_years').select('*').order('created_at', { ascending: false });
+      if (error) {
+        console.error('Fehler beim Laden der Projektjahre:', error);
+        return;
       }
+
+      globalData.projectYears = data || [];
+      activeProjectYear = globalData.projectYears.find(y => y.is_active === true) || null;
+
+      const msgEl = document.getElementById('no-active-project-msg');
+      if (!activeProjectYear && msgEl) msgEl.classList.remove('hidden');
+      else if (msgEl) msgEl.classList.add('hidden');
+
+      populateDropdowns();
+      renderProjectYearsTable();
+    }
+
+    function populateDropdowns() {
+      const options = globalData.projectYears.length > 0 
+        ? globalData.projectYears.map(y => `<option value="${y.id}" ${y.is_active ? 'selected' : ''}>${y.year_label || y.year || 'Projektjahr'} ${y.is_active ? '(Aktiv)' : ''}</option>`).join('')
+        : '<option value="">Kein Projektjahr vorhanden</option>';
+
+      ['reg-project-year', 'app-project-year', 'prog-project-year'].forEach(id => {
+        const el = document.getElementById(id);
+        if (el) el.innerHTML = options;
+      });
     }
 
     function renderProjectYearsTable() {
@@ -273,10 +302,10 @@
       tbody.innerHTML = globalData.projectYears.map(y => `
         <tr class="border-b">
           <td class="p-2 font-bold">${y.year_label || y.year}</td>
-          <td class="p-2">${y.is_active ? '<span class="bg-green-100 text-green-800 text-xs px-2 py-0.5 rounded font-bold">Aktiv</span>' : '<span class="bg-gray-200 text-gray-700 text-xs px-2 py-0.5 rounded font-semibold">Abgeschlossen</span>'}</td>
+          <td class="p-2">${y.is_active ? '<span class="bg-green-100 text-green-800 text-xs px-2 py-0.5 rounded font-bold">Aktiv</span>' : '<span class="bg-gray-200 text-gray-700 text-xs px-2 py-0.5 rounded font-semibold">Inaktiv</span>'}</td>
           <td class="p-2">
             ${y.is_active 
-              ? `<button onclick="toggleProjectYear('${y.id}', false)" class="bg-amber-600 text-white text-xs px-2.5 py-1 rounded font-bold">Abschließen</button>` 
+              ? `<button onclick="toggleProjectYear('${y.id}', false)" class="bg-amber-600 text-white text-xs px-2.5 py-1 rounded font-bold">Deaktivieren</button>` 
               : `<button onclick="toggleProjectYear('${y.id}', true)" class="bg-emerald-600 text-white text-xs px-2.5 py-1 rounded font-bold">Aktivieren</button>`}
           </td>
         </tr>
@@ -287,52 +316,145 @@
       if (targetState === true) {
         const currentlyActive = globalData.projectYears.find(y => y.is_active === true);
         if (currentlyActive && currentlyActive.id !== id) {
-          alert(`Ein Reaktivieren ist nicht möglich, da das Projektjahr "${currentlyActive.year_label || currentlyActive.year}" aktiv ist.`);
-          return;
+          await supabaseClient.from('project_years').update({ is_active: false }).eq('id', currentlyActive.id);
         }
       }
       const { error } = await supabaseClient.from('project_years').update({ is_active: targetState }).eq('id', id);
-      if (error) alert('Fehler beim Ändern des Status: ' + error.message);
+      if (error) alert('Fehler: ' + error.message);
       else await loadProjectYears();
     }
 
-    // FIX: Projektjahr Erstellen mit Fallback für 'year' und 'year_label'
-    document.getElementById('addProjectYearForm')?.addEventListener('submit', async (e) => {
-      e.preventDefault();
-      const label = document.getElementById('py-label').value.trim();
-      const shouldActivate = document.getElementById('py-active').checked;
+    async function checkAdminSession() {
+      const { data: { session } } = await supabaseClient.auth.getSession();
+      const loginBox = document.getElementById('admin-login-box');
+      const dashboard = document.getElementById('admin-dashboard');
 
-      if (shouldActivate) {
-        const currentlyActive = globalData.projectYears.find(y => y.is_active === true);
-        if (currentlyActive) {
-          alert(`Projektjahr "${currentlyActive.year_label || currentlyActive.year}" ist bereits aktiv.`);
-          return;
+      if (session) {
+        if (loginBox) loginBox.classList.add('hidden');
+        if (dashboard) dashboard.classList.remove('hidden');
+        loadAdminData();
+      } else {
+        if (loginBox) loginBox.classList.remove('hidden');
+        if (dashboard) dashboard.classList.add('hidden');
+      }
+    }
+
+    async function loadAdminData() {
+      const [appRes, progRes, regRes] = await Promise.all([
+        supabaseClient.from('appointments').select('*').order('date', { ascending: true }),
+        supabaseClient.from('program_items').select('*'),
+        supabaseClient.from('applications').select('*').order('created_at', { ascending: false })
+      ]);
+
+      globalData.appointments = appRes.data || [];
+      globalData.program = progRes.data || [];
+      globalData.applications = regRes.data || [];
+
+      renderAdminTables();
+    }
+
+    function renderAdminTables() {
+      document.getElementById('admin-appointments-table').innerHTML = globalData.appointments.map(i => `
+        <tr class="border-b">
+          <td class="p-2">${i.type}</td><td class="p-2">${i.location}</td><td class="p-2">${i.date}</td><td class="p-2">${i.time || '-'}</td>
+          <td class="p-2 font-semibold text-xs">${getYearLabel(i.project_year_id)}</td>
+          <td class="p-2"><button onclick="deleteEntry('appointments', '${i.id}')" class="text-red-600 font-bold text-xs">Löschen</button></td>
+        </tr>
+      `).join('');
+
+      document.getElementById('admin-program-table').innerHTML = globalData.program.map(i => `
+        <tr class="border-b">
+          <td class="p-2 font-semibold">${i.title}</td><td class="p-2">${i.composer || '-'}</td><td class="p-2">${i.notes || i.description || '-'}</td>
+          <td class="p-2"><button onclick="deleteEntry('program_items', '${i.id}')" class="text-red-600 font-bold text-xs">Löschen</button></td>
+        </tr>
+      `).join('');
+
+      document.getElementById('applications-table-body').innerHTML = globalData.applications.map(i => `
+        <tr class="border-b">
+          <td class="p-2 font-semibold">${i.name}</td><td class="p-2">${i.music_association_name || ''}</td><td class="p-2">${i.instrument || ''}</td>
+          <td class="p-2">${i.email || ''}</td><td class="p-2">${i.phone || ''}</td>
+          <td class="p-2"><button onclick="deleteEntry('applications', '${i.id}')" class="text-red-600 font-bold text-xs">Löschen</button></td>
+        </tr>
+      `).join('');
+    }
+
+    function getYearLabel(yearId) {
+      const match = globalData.projectYears.find(y => y.id === yearId);
+      return match ? (match.year_label || match.year) : '-';
+    }
+
+    function setupFormListeners() {
+      document.getElementById('adminLoginForm')?.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const userInput = document.getElementById('adminEmail').value.trim();
+        const password = document.getElementById('adminPassword').value;
+        const email = userInput.includes('@') ? userInput : `${userInput}@bezirk.local`;
+
+        const { error } = await supabaseClient.auth.signInWithPassword({ email, password });
+        if (error) {
+          alert('Login fehlgeschlagen: ' + error.message);
+        } else {
+          checkAdminSession();
         }
-      }
-
-      const { error } = await supabaseClient.from('project_years').insert([{
-        year: label,
-        year_label: label,
-        is_active: shouldActivate
-      }]);
-
-      if (error) alert('Fehler beim Erstellen: ' + error.message);
-      else {
-        document.getElementById('addProjectYearForm').reset();
-        await loadProjectYears();
-      }
-    });
-
-    function showSection(sectionId) {
-      ['home', 'anmeldung', 'termine', 'programm', 'admin'].forEach(id => {
-        document.getElementById('section-' + id).classList.add('hidden');
       });
-      document.getElementById('section-' + sectionId).classList.remove('hidden');
-      window.scrollTo(0, 0);
 
-      if (sectionId === 'termine') loadTermine();
-      if (sectionId === 'programm') loadProgramm();
-      if (sectionId === 'admin') checkAdminSession();
+      document.getElementById('addProjectYearForm')?.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const label = document.getElementById('py-label').value.trim();
+        const shouldActivate = document.getElementById('py-active').checked;
+
+        const { error } = await supabaseClient.from('project_years').insert([{
+          year: label,
+          year_label: label,
+          is_active: shouldActivate
+        }]);
+
+        if (error) alert('Fehler: ' + error.message);
+        else {
+          document.getElementById('addProjectYearForm').reset();
+          await loadProjectYears();
+        }
+      });
+
+      document.getElementById('addAppointmentForm')?.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const payload = {
+          type: document.getElementById('app-type').value,
+          location: document.getElementById('app-location').value,
+          date: document.getElementById('app-date').value,
+          time: document.getElementById('app-time').value || null,
+          project_year_id: document.getElementById('app-project-year').value || null,
+          notes: document.getElementById('app-notes').value || null
+        };
+        const { error } = await supabaseClient.from('appointments').insert([payload]);
+        if (error) alert('Fehler: ' + error.message);
+        else { document.getElementById('addAppointmentForm').reset(); loadAdminData(); }
+      });
+
+      document.getElementById('addProgramForm')?.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const payload = {
+          title: document.getElementById('prog-title').value,
+          composer: document.getElementById('prog-composer').value || null,
+          project_year_id: document.getElementById('prog-project-year').value || null,
+          notes: document.getElementById('prog-notes').value || null
+        };
+        const { error } = await supabaseClient.from('program_items').insert([payload]);
+        if (error) alert('Fehler: ' + error.message);
+        else { document.getElementById('addProgramForm').reset(); loadAdminData(); }
+      });
+    }
+
+    async function logoutAdmin() {
+      await supabaseClient.auth.signOut();
+      checkAdminSession();
+    }
+
+    async function deleteEntry(table, id) {
+      if (confirm('Eintrag unwiderruflich löschen?')) {
+        await supabaseClient.from(table).delete().eq('id', id);
+        loadAdminData();
+      }
     }
 
     async function loadTermine() {
@@ -341,13 +463,11 @@
         container.innerHTML = '<p class="text-amber-800 bg-amber-50 p-4 rounded font-semibold italic text-center">Zurzeit ist kein aktives Projektjahr vorhanden.</p>';
         return;
       }
-
       const { data } = await supabaseClient.from('appointments').select('*').eq('project_year_id', activeProjectYear.id).order('date', { ascending: true });
       if (!data || data.length === 0) {
         container.innerHTML = '<p class="text-gray-500 italic">Keine Termine eingetragen.</p>';
         return;
       }
-
       container.innerHTML = data.map(item => `
         <div class="border-l-4 border-[#C59B27] bg-gray-50 p-4 rounded shadow-sm flex justify-between gap-2">
           <div>
@@ -366,91 +486,20 @@
         container.innerHTML = '<p class="text-amber-800 bg-amber-50 p-4 rounded font-semibold italic text-center">Zurzeit ist kein aktives Projektjahr vorhanden.</p>';
         return;
       }
-
       const { data } = await supabaseClient.from('program_items').select('*').eq('project_year_id', activeProjectYear.id);
       if (!data || data.length === 0) {
         container.innerHTML = '<p class="text-gray-500 italic">Kein Programm vorhanden.</p>';
         return;
       }
-
       container.innerHTML = data.map(item => `
         <div class="border-l-4 border-[#00382B] bg-gray-50 p-4 rounded shadow-sm">
           <h3 class="font-bold text-lg text-[#00382B]">${item.title}</h3>
           ${item.composer ? `<p class="text-sm font-semibold text-gray-700">Komponist: ${item.composer}</p>` : ''}
-          ${(item.description || item.notes) ? `<p class="text-xs text-gray-500 mt-1">${item.description || item.notes}</p>` : ''}
+          ${(item.notes || item.description) ? `<p class="text-xs text-gray-500 mt-1">${item.notes || item.description}</p>` : ''}
         </div>
       `).join('');
     }
 
-    function getYearLabel(yearId) {
-      const match = globalData.projectYears.find(y => y.id === yearId);
-      return match ? (match.year_label || match.year) : '-';
-    }
-
-    function renderAdminTables() {
-      document.getElementById('admin-appointments-table').innerHTML = globalData.appointments.map(i => `
-        <tr class="border-b">
-          <td class="p-2">${i.type}</td><td class="p-2">${i.location}</td><td class="p-2">${i.date}</td><td class="p-2">${i.time || '-'}</td>
-          <td class="p-2 font-semibold text-xs">${getYearLabel(i.project_year_id)}</td>
-          <td class="p-2"><button onclick="deleteEntry('appointments', '${i.id}')" class="text-red-600 font-bold text-xs">Löschen</button></td>
-        </tr>
-      `).join('');
-
-      document.getElementById('admin-program-table').innerHTML = globalData.program.map(i => `
-        <tr class="border-b">
-          <td class="p-2 font-semibold">${i.title}</td><td class="p-2">${i.composer || '-'}</td><td class="p-2">${i.description || i.notes || '-'}</td>
-          <td class="p-2"><button onclick="deleteEntry('program_items', '${i.id}')" class="text-red-600 font-bold text-xs">Löschen</button></td>
-        </tr>
-      `).join('');
-
-      document.getElementById('applications-table-body').innerHTML = globalData.applications.map(i => `
-        <tr class="border-b">
-          <td class="p-2 font-semibold">${i.name}</td><td class="p-2">${i.music_association_name || ''}</td><td class="p-2">${i.instrument || ''}</td>
-          <td class="p-2">${i.email || ''}</td><td class="p-2">${i.phone || ''}</td>
-          <td class="p-2"><button onclick="deleteEntry('applications', '${i.id}')" class="text-red-600 font-bold text-xs">Löschen</button></td>
-        </tr>
-      `).join('');
-    }
-
-    // FIX: Termine hinzufügen
-    document.getElementById('addAppointmentForm').addEventListener('submit', async (e) => {
-      e.preventDefault();
-      const payload = {
-        type: document.getElementById('app-type').value,
-        location: document.getElementById('app-location').value,
-        date: document.getElementById('app-date').value,
-        time: document.getElementById('app-time').value || null,
-        project_year_id: document.getElementById('app-project-year').value || null,
-        notes: document.getElementById('app-notes').value || null
-      };
-      const { error } = await supabaseClient.from('appointments').insert([payload]);
-      if (error) alert('Fehler: ' + error.message);
-      else { document.getElementById('addAppointmentForm').reset(); loadAdminData(); }
-    });
-
-    // FIX: Konzertstücke hinzufügen (kompatibel mit 'notes' und 'description')
-    document.getElementById('addProgramForm').addEventListener('submit', async (e) => {
-      e.preventDefault();
-      const payload = {
-        title: document.getElementById('prog-title').value,
-        composer: document.getElementById('prog-composer').value || null,
-        project_year_id: document.getElementById('prog-project-year').value || null,
-        notes: document.getElementById('prog-notes').value || null,
-        description: document.getElementById('prog-[#notes]').value || null
-      };
-      const { error } = await supabaseClient.from('program_items').insert([payload]);
-      if (error) alert('Fehler: ' + error.message);
-      else { document.getElementById('addProgramForm').reset(); loadAdminData(); }
-    });
-
-    async function deleteEntry(table, id) {
-      if (confirm('Eintrag unwiderruflich löschen?')) {
-        await supabaseClient.from(table).delete().eq('id', id);
-        loadAdminData();
-      }
-    }
-
-    // FIX: Ausgerichteter PDF-Export im Querformat mit bereinigten Spalten
     function exportData(type, format) {
       const rawData = globalData[type];
       if (!rawData || rawData.length === 0) return alert('Keine Daten zum Exportieren vorhanden.');
@@ -463,42 +512,21 @@
       } else if (format === 'pdf') {
         const { jsPDF } = window.jspdf;
         const doc = new jsPDF({ orientation: 'landscape' });
-
         doc.setFontSize(14);
         doc.text(`Export: ${type.toUpperCase()}`, 14, 15);
 
         let cleanData = [];
         if (type === 'applications') {
-          cleanData = rawData.map(item => ({
-            Name: item.name || '',
-            Verein: item.music_association_name || '',
-            Instrument: item.instrument || '',
-            Email: item.email || '',
-            Telefon: item.phone || '',
-            Geburtsdatum: item.birth_date || ''
-          }));
+          cleanData = rawData.map(item => ({ Name: item.name || '', Verein: item.music_association_name || '', Instrument: item.instrument || '', Email: item.email || '', Telefon: item.phone || '', Geburtsdatum: item.birth_date || '' }));
         } else if (type === 'appointments') {
-          cleanData = rawData.map(item => ({
-            Typ: item.type || '',
-            Ort: item.location || '',
-            Datum: item.date || '',
-            Uhrzeit: item.time || '',
-            Anmerkung: item.notes || ''
-          }));
+          cleanData = rawData.map(item => ({ Typ: item.type || '', Ort: item.location || '', Datum: item.date || '', Uhrzeit: item.time || '', Anmerkung: item.notes || '' }));
         } else {
-          cleanData = rawData.map(item => ({
-            Titel: item.title || '',
-            Komponist: item.composer || '',
-            Details: item.description || item.notes || ''
-          }));
+          cleanData = rawData.map(item => ({ Titel: item.title || '', Komponist: item.composer || '', Details: item.notes || item.description || '' }));
         }
 
-        const headers = [Object.keys(cleanData[0])];
-        const rows = cleanData.map(obj => Object.values(obj));
-
         doc.autoTable({
-          head: headers,
-          body: rows,
+          head: [Object.keys(cleanData[0])],
+          body: cleanData.map(obj => Object.values(obj)),
           startY: 22,
           styles: { fontSize: 9, cellPadding: 2 },
           headStyles: { fillColor: [0, 56, 43] }
@@ -506,47 +534,6 @@
 
         doc.save(`${type}_export.pdf`);
       }
-    }
-
-    async function checkAdminSession() {
-      const { data: { session } } = await supabaseClient.auth.getSession();
-      if (session) {
-        document.getElementById('admin-login-box').classList.add('hidden');
-        document.getElementById('admin-dashboard').classList.remove('hidden');
-        loadAdminData();
-      } else {
-        document.getElementById('admin-login-box').classList.remove('hidden');
-        document.getElementById('admin-dashboard').classList.add('hidden');
-      }
-    }
-
-    async function loadAdminData() {
-      const [appRes, progRes, regRes] = await Promise.all([
-        supabaseClient.from('appointments').select('*').order('date', { ascending: true }),
-        supabaseClient.from('program_items').select('*'),
-        supabaseClient.from('applications').select('*').order('created_at', { ascending: false })
-      ]);
-
-      globalData.appointments = appRes.data || [];
-      globalData.program = progRes.data || [];
-      globalData.applications = regRes.data || [];
-
-      renderAdminTables();
-    }
-
-    document.getElementById('adminLoginForm').addEventListener('submit', async (e) => {
-      e.preventDefault();
-      const usernameInput = document.getElementById('adminEmail').value.trim();
-      const password = document.getElementById('adminPassword').value;
-      const email = usernameInput.includes('@') ? usernameInput : `${usernameInput}@bezirk.local`;
-      const { error } = await supabaseClient.auth.signInWithPassword({ email, password });
-      if (error) alert('Login fehlgeschlagen: ' + error.message);
-      else checkAdminSession();
-    });
-
-    async function logoutAdmin() {
-      await supabaseClient.auth.signOut();
-      checkAdminSession();
     }
   </script>
 </body>
