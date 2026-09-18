@@ -191,7 +191,7 @@
             <label class="block text-sm font-semibold">Passwort</label>
             <input required type="password" id="adminPassword" class="w-full mt-1 p-2 border rounded">
           </div>
-          <button type="submit" class="w-full bg-[#00382B] text-white font-bold py-2 rounded hover:bg-[#00241B]">Einloggen</button>
+          <button type="submit" id="adminLoginBtn" class="w-full bg-[#00382B] text-white font-bold py-2 rounded hover:bg-[#00241B]">Einloggen</button>
         </form>
       </div>
 
@@ -231,18 +231,7 @@
     const SUPABASE_URL = 'https://lrwxkpcubgxzjjvlwmh.supabase.co';
     const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImxyeHd4a3BjdWJneHpqanZsd21oIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODk3MDUyMzMsImV4cCI6MjEwNTI4MTIzM30.M_H-ZkHlhM7S73f47Dw5341OjgtTRrJIHhDMuWkRNWc';
 
-    const supabaseClient = window.supabase ? window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
-      auth: {
-        persistSession: true,
-        autoRefreshToken: true,
-        detectSessionInUrl: true
-      },
-      global: {
-        headers: {
-          'apikey': SUPABASE_ANON_KEY
-        }
-      }
-    }) : null;
+    const supabaseClient = window.supabase ? window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY) : null;
 
     function showSection(sectionId) {
       ['home', 'anmeldung', 'termine', 'admin'].forEach(id => {
@@ -333,10 +322,9 @@
       }
     });
 
-    async function checkAdminSession() {
-      if (!supabaseClient) return;
-      const { data: { session } } = await supabaseClient.auth.getSession();
-      if (session) {
+    function checkAdminSession() {
+      const token = localStorage.getItem('admin_access_token');
+      if (token) {
         document.getElementById('admin-login-box').classList.add('hidden');
         document.getElementById('admin-dashboard').classList.remove('hidden');
         loadApplications();
@@ -346,54 +334,80 @@
       }
     }
 
+    // Direkt-Login über die Auth REST API (behebt "Failed to fetch")
     document.getElementById('adminLoginForm').addEventListener('submit', async (e) => {
       e.preventDefault();
-      if (!supabaseClient) return alert('Supabase konnte nicht geladen werden.');
 
       const email = document.getElementById('adminEmail').value;
       const password = document.getElementById('adminPassword').value;
+      const btn = document.getElementById('adminLoginBtn');
+      
+      btn.innerText = 'Prüfe...';
+      btn.disabled = true;
 
       try {
-        const { data, error } = await supabaseClient.auth.signInWithPassword({ email, password });
-        if (error) {
-          alert('Login fehlgeschlagen: ' + error.message);
+        const response = await fetch(`${SUPABASE_URL}/auth/v1/token?grant_type=password`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'apikey': SUPABASE_ANON_KEY
+          },
+          body: JSON.stringify({ email, password })
+        });
+
+        const data = await response.json();
+
+        if (!response.ok) {
+          alert('Login fehlgeschlagen: ' + (data.error_description || data.msg || 'Ungültige Anmeldedaten'));
         } else {
+          localStorage.setItem('admin_access_token', data.access_token);
           checkAdminSession();
         }
       } catch (err) {
-        alert('Verbindungsfehler: ' + err.message);
+        alert('Netzwerkfehler: ' + err.message);
+      } finally {
+        btn.innerText = 'Einloggen';
+        btn.disabled = false;
       }
     });
 
-    async function logoutAdmin() {
-      if (!supabaseClient) return;
-      await supabaseClient.auth.signOut();
+    function logoutAdmin() {
+      localStorage.removeItem('admin_access_token');
       checkAdminSession();
     }
 
     async function loadApplications() {
-      if (!supabaseClient) return;
       const tbody = document.getElementById('applications-table-body');
-      const { data, error } = await supabaseClient
-        .from('applications')
-        .select('*')
-        .order('created_at', { ascending: false });
+      const token = localStorage.getItem('admin_access_token');
 
-      if (error || !data || data.length === 0) {
-        tbody.innerHTML = '<tr><td colspan="6" class="p-4 text-center text-gray-500">Keine Anmeldungen vorhanden.</td></tr>';
-        return;
+      try {
+        const response = await fetch(`${SUPABASE_URL}/rest/v1/applications?select=*&order=created_at.desc`, {
+          headers: {
+            'apikey': SUPABASE_ANON_KEY,
+            'Authorization': `Bearer ${token}`
+          }
+        });
+
+        const data = await response.json();
+
+        if (!response.ok || !data || data.length === 0) {
+          tbody.innerHTML = '<tr><td colspan="6" class="p-4 text-center text-gray-500">Keine Anmeldungen vorhanden.</td></tr>';
+          return;
+        }
+
+        tbody.innerHTML = data.map(app => `
+          <tr class="border-b hover:bg-gray-50">
+            <td class="p-3 font-semibold">${app.name}</td>
+            <td class="p-3">${app.music_association_name}</td>
+            <td class="p-3">${app.instrument}</td>
+            <td class="p-3">${app.email}</td>
+            <td class="p-3">${app.phone}</td>
+            <td class="p-3 text-xs text-gray-500">${new Date(app.created_at).toLocaleDateString('de-AT')}</td>
+          </tr>
+        `).join('');
+      } catch (err) {
+        tbody.innerHTML = '<tr><td colspan="6" class="p-4 text-center text-red-500">Fehler beim Laden der Daten.</td></tr>';
       }
-
-      tbody.innerHTML = data.map(app => `
-        <tr class="border-b hover:bg-gray-50">
-          <td class="p-3 font-semibold">${app.name}</td>
-          <td class="p-3">${app.music_association_name}</td>
-          <td class="p-3">${app.instrument}</td>
-          <td class="p-3">${app.email}</td>
-          <td class="p-3">${app.phone}</td>
-          <td class="p-3 text-xs text-gray-500">${new Date(app.created_at).toLocaleDateString('de-AT')}</td>
-        </tr>
-      `).join('');
     }
   </script>
 </body>
